@@ -42,6 +42,22 @@ onMounted(async () => {
     });
   }
 
+  if (showSettings.value) {
+    map.on('click', (e) => {
+      const { lat: newLat, lng: newLng } = e.latlng;
+
+      // 1. Перемещаем маркер
+      marker.setLatLng([newLat, newLng]);
+
+      // 2. Обновляем реактивные переменные (координаты)
+      lat.value = newLat.toFixed(6).toString();
+      lng.value = newLng.toFixed(6).toString();
+
+      // 3. (Опционально) Центрируем карту на новом месте
+      map.panTo([newLat, newLng]);
+    });
+  }
+
   setTimeout(() => {
     map.invalidateSize();
   }, 200);
@@ -94,7 +110,7 @@ const saveToWP = async () => {
       @input-change="updateMapFromInputs"
     />
 
-    <div class="mlm-map-container">
+    <div class="mlm-map-container !max-w-full !w-full !mx-0">
       <div ref="mapContainer" class="admin-map-canvas"></div>
     </div>
   </div>
@@ -116,7 +132,6 @@ body {
   display: flex;
   gap: 20px;
   width: 100%;
-  padding: 20px;
   box-sizing: border-box;
   font-family: sans-serif;
 

@@ -1,1 +1,20 @@
 @import "tailwindcss";
+
+#mlm-map-admin-root,
+#mlm-map-admin-root * {
+  /* Сбрасываем автоматические отступы, которые WP навязывает первым элементам */
+  max-width: none !important;
+  margin-left: unset !important;
+  margin-right: unset !important;
+}
+
+.wp-block-post-title {
+  max-width: none !important;
+  margin-left: unset !important;
+  margin-right: unset !important;
+}
+
+/* Принудительно возвращаем нормальное поведение для карты */
+#mlm-map-admin-root :where(.is-layout-constrained) > :first-child {
+  margin-block-start: 0 !important; /* Или то значение, которое нужно тебе */
+}
