@@ -2,13 +2,7 @@
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-
-interface MarkerData {
-  id: string;
-  lat: string | number;
-  lng: string | number;
-  title: string;
-}
+import type { MarkerData } from '../types';
 
 interface Props {
   markers: MarkerData[];
@@ -40,13 +34,13 @@ const renderMarkers = () => {
   if (!map || !Array.isArray(props.markers)) return;
 
   leafletMarkers.forEach((leafletMarker, id) => {
-    if (!props.markers.find(m => m.id === id)) {
+    if (!props.markers.find((m) => m.id === id)) {
       map?.removeLayer(leafletMarker);
       leafletMarkers.delete(id);
     }
   });
 
-  props.markers.forEach(data => {
+  props.markers.forEach((data) => {
     const position: L.LatLngExpression = [Number(data.lat), Number(data.lng)];
 
     if (!leafletMarkers.has(data.id)) {
@@ -86,9 +80,10 @@ onMounted(async () => {
   await nextTick();
   if (!mapContainer.value) return;
 
-  const startCoords: L.LatLngExpression = props.markers?.length > 0
-    ? [Number(props.markers[0].lat), Number(props.markers[0].lng)]
-    : [55.7512, 37.6184];
+  const startCoords: L.LatLngExpression =
+    props.markers?.length > 0
+      ? [Number(props.markers[0].lat), Number(props.markers[0].lng)]
+      : [55.7512, 37.6184];
 
   map = L.map(mapContainer.value, {
     tap: false,
@@ -114,9 +109,13 @@ onMounted(async () => {
   setTimeout(() => map?.invalidateSize(), 500);
 });
 
-watch(() => props.markers, () => {
-  renderMarkers();
-}, { deep: true });
+watch(
+  () => props.markers,
+  () => {
+    renderMarkers();
+  },
+  { deep: true }
+);
 
 onUnmounted(() => {
   if (map) {
@@ -127,11 +126,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flex-1 min-h-[31.25rem] rounded-2xl overflow-hidden border border-slate-200 shadow-xl relative z-10 bg-slate-50">
+  <div
+    class="flex-1 min-h-[31.25rem] rounded-2xl overflow-hidden border border-slate-200 shadow-xl relative z-10 bg-slate-50"
+  >
     <div ref="mapContainer" class="h-full w-full"></div>
 
     <div v-if="draggable" class="absolute bottom-1 left-1 z-[1000] pointer-events-none">
-      <div class="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 text-[0.6875rem] font-bold text-slate-600 shadow-sm uppercase tracking-wider">
+      <div
+        class="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 text-[0.6875rem] font-bold text-slate-600 shadow-sm uppercase tracking-wider"
+      >
         Кликните на карту для новой точки
       </div>
     </div>

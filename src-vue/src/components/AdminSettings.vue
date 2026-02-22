@@ -1,18 +1,13 @@
 <script setup lang="ts">
-interface Marker {
-  id: string;
-  lat: string | number;
-  lng: string | number;
-  title: string;
-}
+import type { MarkerData } from '../types';
 
 interface Props {
-  markers: Marker[];
+  markers?: MarkerData[];
   isSaving?: boolean;
   isDev?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   markers: () => [],
   isSaving: false,
   isDev: false
@@ -26,20 +21,36 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="mlm-sidebar flex flex-col gap-4 w-80 p-6 rounded-2xl bg-white border border-slate-200 shadow-xl h-[600px]">
-
+  <div
+    class="mlm-sidebar flex flex-col gap-4 w-80 p-6 rounded-2xl bg-white border border-slate-200 shadow-xl h-[600px]"
+  >
     <div class="flex items-center justify-between mb-1">
       <div class="flex flex-col">
         <h3 class="m-0 text-slate-800 text-xl font-black tracking-tight leading-tight">Локации</h3>
-        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Всего: {{ markers.length }}</span>
+        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest"
+          >Всего: {{ markers.length }}</span
+        >
       </div>
 
       <button
         type="button"
-        @click="emit('add')"
         class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-bold hover:bg-slate-700 transition-colors shadow-sm"
+        @click="emit('add')"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
         Добавить
       </button>
     </div>
@@ -80,18 +91,35 @@ const emit = defineEmits<{
 
             <button
               type="button"
-              @click="emit('remove', marker.id)"
               class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all p-1 mb-0.5"
               title="Удалить точку"
+              @click="emit('remove', marker.id)"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 6h18" />
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+              </svg>
             </button>
           </div>
         </div>
       </div>
 
       <div v-if="markers.length === 0" class="text-center text-sm text-slate-400 italic py-8">
-        Нажмите кнопку «Добавить» или <br> кликните по карте
+        Нажмите кнопку «Добавить» или <br />
+        кликните по карте
       </div>
     </div>
 
@@ -101,16 +129,35 @@ const emit = defineEmits<{
       @click="emit('save')"
     >
       <span v-if="!isSaving" class="flex items-center justify-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v13a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v13a2 2 0 0 1-2 2z" />
+          <polyline points="17 21 17 13 7 13 7 21" />
+          <polyline points="7 3 7 8 15 8" />
+        </svg>
         Сохранить всё
       </span>
       <span v-else class="flex items-center justify-center gap-2">
-        <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+        <div
+          class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+        ></div>
         Запись...
       </span>
     </button>
 
-    <div v-if="isDev" class="text-[9px] tracking-widest font-black text-slate-300 text-center uppercase">
+    <div
+      v-if="isDev"
+      class="text-[9px] tracking-widest font-black text-slate-300 text-center uppercase"
+    >
       Development Mode
     </div>
   </div>

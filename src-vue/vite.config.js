@@ -3,10 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  plugins: [
-    tailwindcss(),
-    vue(),
-  ],
+  plugins: [tailwindcss(), vue()],
   build: {
     // 1. Выходим из src-vue и кладем билд в assets/dist
     outDir: '../assets/dist',

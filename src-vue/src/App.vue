@@ -51,14 +51,14 @@ const handleManualAdd = () => {
 };
 
 const updateMarker = (updated: MarkerData) => {
-  const index = markers.value.findIndex(m => m.id === updated.id);
+  const index = markers.value.findIndex((m) => m.id === updated.id);
   if (index !== -1) {
     markers.value[index] = updated;
   }
 };
 
 const removeMarker = (id: string) => {
-  markers.value = markers.value.filter(m => m.id !== id);
+  markers.value = markers.value.filter((m) => m.id !== id);
 };
 
 const handleSave = async () => {
@@ -92,7 +92,6 @@ const handleSave = async () => {
 
 <template>
   <div class="mlm-plugin-root flex flex-col md:flex-row gap-5 font-sans">
-
     <AdminSettings
       v-if="isAdmin"
       :markers="markers"
