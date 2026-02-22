@@ -10,8 +10,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// Подключаем наш стор
-const { markers } = useMarkers();
+// Достаем триггер и маркеры из стора
+const { markers, activeMarkerId, mapCenterTrigger } = useMarkers();
 
 const mapContainer = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;
@@ -27,13 +27,9 @@ const customIcon = L.divIcon({
   popupAnchor: [0, -40]
 });
 
-/**
- * Синхронизация маркеров Leaflet с массивом из Store
- */
 const syncMarkers = () => {
   if (!map) return;
 
-  // 1. Удаляем из карты те, которых больше нет в сторе
   const storeIds = new Set(markers.value.map((m) => m.id));
   leafletMarkers.forEach((leafletMarker, id) => {
     if (!storeIds.has(id)) {
@@ -42,12 +38,10 @@ const syncMarkers = () => {
     }
   });
 
-  // 2. Добавляем новые или обновляем существующие
   markers.value.forEach((data) => {
     const position: L.LatLngExpression = [Number(data.lat), Number(data.lng)];
 
     if (!leafletMarkers.has(data.id)) {
-      // Создаем новый маркер
       const newMarker = L.marker(position, {
         icon: customIcon,
         draggable: props.draggable
@@ -57,7 +51,6 @@ const syncMarkers = () => {
         closeButton: false
       });
 
-      // Обновление координат в сторе при завершении перетаскивания
       newMarker.on('dragend', () => {
         const pos = newMarker.getLatLng();
         data.lat = pos.lat.toFixed(6);
@@ -66,18 +59,13 @@ const syncMarkers = () => {
 
       leafletMarkers.set(data.id, newMarker);
     } else {
-      // Обновляем позицию и попап существующего
       const existingMarker = leafletMarkers.get(data.id);
       if (existingMarker) {
         const currentPos = existingMarker.getLatLng();
         if (currentPos.lat !== Number(data.lat) || currentPos.lng !== Number(data.lng)) {
           existingMarker.setLatLng(position);
         }
-
-        const content = `<strong>${data.title || 'Без названия'}</strong>`;
-        if (existingMarker.getPopup()?.getContent() !== content) {
-          existingMarker.setPopupContent(content);
-        }
+        existingMarker.setPopupContent(`<strong>${data.title || 'Без названия'}</strong>`);
       }
     }
   });
@@ -87,7 +75,6 @@ onMounted(async () => {
   await nextTick();
   if (!mapContainer.value) return;
 
-  // Центрируем по первой точке или по дефолту
   const startCoords: L.LatLngExpression =
     markers.value.length > 0
       ? [Number(markers.value[0].lat), Number(markers.value[0].lng)]
@@ -102,27 +89,43 @@ onMounted(async () => {
     attribution: '&copy; OpenStreetMap'
   }).addTo(map);
 
-  // Добавление точки кликом
   map.on('click', (e: L.LeafletMouseEvent) => {
     if (!props.draggable) return;
-
-    // Вызываем метод из useMarkers напрямую
-    const newId = crypto.randomUUID();
     markers.value.push({
-      id: newId,
+      id: crypto.randomUUID(),
       lat: e.latlng.lat.toFixed(6),
       lng: e.latlng.lng.toFixed(6),
-      title: 'Новая точка'
+      title: `Точка ${markers.value.length + 1}`
     });
   });
 
   syncMarkers();
-
-  // Исправляем баг серой карты в контейнерах
   setTimeout(() => map?.invalidateSize(), 400);
 });
 
-// Следим за изменениями в сторе
+// Watch за триггером центрирования
+watch(mapCenterTrigger, (coords) => {
+  if (coords && map) {
+    const lat = Number(coords.lat);
+    const lng = Number(coords.lng);
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      // Берем текущий зум карты вместо фиксированного числа
+      const currentZoom = map.getZoom();
+
+      map.flyTo([lat, lng], currentZoom, {
+        animate: true,
+        duration: 1
+      });
+
+      const leafletMarker = leafletMarkers.get(activeMarkerId.value || '');
+      if (leafletMarker) {
+        leafletMarker.openPopup();
+      }
+    }
+  }
+});
+
 watch(markers, () => syncMarkers(), { deep: true });
 
 onUnmounted(() => {
@@ -141,7 +144,7 @@ onUnmounted(() => {
 
     <div v-if="draggable" class="absolute bottom-4 left-4 z-1000 pointer-events-none">
       <div
-        class="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 text-[11px] font-bold text-slate-600 shadow-sm uppercase tracking-wider"
+        class="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 text-[0.6875rem] font-bold text-slate-600 shadow-sm uppercase tracking-wider"
       >
         Кликните на карту для новой точки
       </div>
@@ -156,15 +159,15 @@ onUnmounted(() => {
 }
 
 :deep(.leaflet-popup-content-wrapper) {
-  border-radius: 0.5rem; /* 8px */
+  border-radius: 0.5rem;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  padding: 0.25rem; /* 4px */
+  padding: 0.25rem;
   font-family: inherit;
 }
 
 :deep(.leaflet-popup-content) {
   margin: 0.5rem 0.75rem;
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.875rem;
   color: #1e293b;
 }
 

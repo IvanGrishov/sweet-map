@@ -5,6 +5,8 @@ import type { MarkerData } from '@/types';
 const initialData = window.wpData?.coords || [];
 const markers = ref<MarkerData[]>(initialData);
 const isSaving = ref(false);
+const activeMarkerId = ref<string | null>(null);
+const mapCenterTrigger = ref<{ lat: string; lng: string } | null>(null);
 
 // 2. ГАРАНТИРУЕМ наличие точки по умолчанию, если список пуст
 if (markers.value.length === 0) {
@@ -37,6 +39,15 @@ export function useMarkers() {
     markers.value = markers.value.filter((m) => m.id !== id);
   };
 
+  const centerOnMarker = (marker: MarkerData) => {
+    activeMarkerId.value = marker.id;
+    mapCenterTrigger.value = {
+      lat: String(marker.lat),
+      lng: String(marker.lng)
+    };
+    console.log('Trigger updated:', mapCenterTrigger.value); // Для отладки
+  };
+
   const saveMarkers = async () => {
     if (!window.wpData?.rest_url) return;
 
@@ -63,6 +74,9 @@ export function useMarkers() {
     isSaving: readonly(isSaving),
     addMarker,
     removeMarker,
-    saveMarkers
+    saveMarkers,
+    activeMarkerId,
+    mapCenterTrigger,
+    centerOnMarker
   };
 }

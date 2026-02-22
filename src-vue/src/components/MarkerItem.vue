@@ -6,13 +6,15 @@ import { MarkerData } from '@/types';
 const marker = defineModel<MarkerData>({ required: true });
 
 defineEmits<{
-  (e: 'remove', id: string): void;
+  remove: [id: string];
+  select: [marker: MarkerData];
 }>();
 </script>
 
 <template>
   <div
-    class="group p-4 rounded-xl border border-slate-100 bg-slate-50 transition-all hover:border-indigo-200 hover:shadow-sm"
+    class="group p-4 rounded-xl border border-slate-100 bg-slate-50 transition-all hover:border-indigo-200 hover:shadow-sm cursor-pointer"
+    @click="$emit('select', marker)"
   >
     <div class="flex flex-col gap-2">
       <input
