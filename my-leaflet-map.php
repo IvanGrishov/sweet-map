@@ -41,11 +41,6 @@ function mlm_enqueue_assets() {
 
   wp_enqueue_script('mlm-vue-app', $dist_url . 'index.js', array(), MLM_VUE_VERSION, true);
 
-  $coords = get_option('mlm_coords', array());
-
-  // ПРОВЕРКА: является ли текущий пользователь админом
-  $can_edit = current_user_can('manage_options');
-
   wp_localize_script('mlm-vue-app', 'wpData', array(
     'rest_url' => esc_url_raw(rest_url('mlm/v1')),
     'nonce'    => wp_create_nonce('wp_rest'),
