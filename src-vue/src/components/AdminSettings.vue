@@ -7,7 +7,8 @@ import IconSave from '@/components/ui/icons/IconSave.vue';
 import MarkerItem from '@/components/MarkerItem.vue';
 import { MarkerData } from '@/types';
 
-const { markers, isSaving, addMarker, removeMarker, saveMarkers, centerOnMarker } = useMarkers();
+const { markers, isSaving, addMarker, removeMarker, saveMarkers, centerOnMarker, activeMarkerId } =
+  useMarkers();
 
 defineEmits<{
   select: [marker: MarkerData];
@@ -38,11 +39,17 @@ const isDev = !window.wpData;
       </BaseButton>
     </div>
 
-    <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
+    <div class="flex-1 overflow-y-auto custom-scrollbar -m-2 p-2 space-y-4">
       <MarkerItem
         v-for="(marker, index) in markers"
         :key="marker.id"
         v-model="markers[index]"
+        :class="[
+          'transition-all duration-300 rounded-2xl cursor-pointer relative',
+          activeMarkerId === marker.id
+            ? 'bg-white border border-indigo-900 ring-2 ring-indigo-500 scale-[1.01] z-10'
+            : 'bg-slate-50 border border-transparent opacity-70 hover:opacity-100 hover:bg-white hover:border-slate-200'
+        ]"
         @remove="removeMarker"
         @select="handleSelect"
       />

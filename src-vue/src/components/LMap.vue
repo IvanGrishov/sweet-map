@@ -11,7 +11,7 @@ interface Props {
 const props = defineProps<Props>();
 
 // Достаем триггер и маркеры из стора
-const { markers, activeMarkerId, mapCenterTrigger } = useMarkers();
+const { markers, activeMarkerId, mapCenterTrigger, centerOnMarker } = useMarkers();
 
 const mapContainer = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;
@@ -49,6 +49,14 @@ const syncMarkers = () => {
 
       newMarker.bindPopup(`<strong>${data.title || 'Без названия'}</strong>`, {
         closeButton: false
+      });
+
+      newMarker.on('click', () => {
+        // Вызываем метод из стора. Он обновит activeMarkerId и mapCenterTrigger
+        centerOnMarker(data);
+
+        // Опционально: сразу открываем попап
+        newMarker.openPopup();
       });
 
       newMarker.on('dragend', () => {
