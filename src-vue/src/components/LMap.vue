@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import type { MarkerData } from '../types';
+import type { MarkerData } from '@/types';
 
 interface Props {
   markers: MarkerData[];
@@ -127,11 +127,11 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="flex-1 min-h-[31.25rem] rounded-2xl overflow-hidden border border-slate-200 shadow-xl relative z-10 bg-slate-50"
+    class="flex-1 min-h-125 rounded-2xl overflow-hidden border border-slate-200 shadow-xl relative z-10 bg-slate-50"
   >
     <div ref="mapContainer" class="h-full w-full"></div>
 
-    <div v-if="draggable" class="absolute bottom-1 left-1 z-[1000] pointer-events-none">
+    <div v-if="draggable" class="absolute bottom-1 left-1 z-1000 pointer-events-none">
       <div
         class="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 text-[0.6875rem] font-bold text-slate-600 shadow-sm uppercase tracking-wider"
       >
