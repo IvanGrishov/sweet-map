@@ -4,6 +4,8 @@ import BaseButton from '@/components/ui/BaseButton.vue';
 import BaseIconButton from '@/components/ui/BaseIconButton.vue';
 import IconPlus from '@/components/ui/icons/IconPlus.vue';
 import IconTrash from '@/components/ui/icons/IconTrash.vue';
+import PrimaryButton from '@/components/ui/PrimaryButton.vue';
+import IconSave from '@/components/ui/icons/IconSave.vue';
 
 // Подключаем стор. Теперь не нужно прокидывать пропсы сверху!
 const { markers, isSaving, addMarker, removeMarker, saveMarkers } = useMarkers();
@@ -77,36 +79,12 @@ const isDev = !window.wpData;
       </div>
     </div>
 
-    <button
-      :disabled="isSaving"
-      class="relative w-full py-4 px-4 bg-indigo-600 text-white border-none rounded-xl font-bold transition-all hover:bg-indigo-700 active:scale-95 disabled:bg-slate-300 shadow-lg shadow-indigo-100"
-      @click="saveMarkers"
-    >
-      <span v-if="!isSaving" class="flex items-center justify-center gap-2">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v13a2 2 0 0 1-2 2z" />
-          <polyline points="17 21 17 13 7 13 7 21" />
-          <polyline points="7 3 7 8 15 8" />
-        </svg>
-        Сохранить всё
-      </span>
-      <span v-else class="flex items-center justify-center gap-2">
-        <div
-          class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
-        ></div>
-        Запись...
-      </span>
-    </button>
+    <PrimaryButton :loading="isSaving" @click="saveMarkers">
+      <template #icon>
+        <IconSave />
+      </template>
+      Сохранить всё
+    </PrimaryButton>
 
     <div
       v-if="isDev"
