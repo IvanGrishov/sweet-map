@@ -91,7 +91,7 @@ const handleSave = async () => {
 </script>
 
 <template>
-  <div class="mlm-plugin-root p-4 flex flex-col md:flex-row gap-5 font-sans bg-slate-50 rounded-2xl border border-slate-200">
+  <div class="mlm-plugin-root flex flex-col md:flex-row gap-5 font-sans">
 
     <AdminSettings
       v-if="isAdmin"
