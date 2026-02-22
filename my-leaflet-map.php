@@ -34,30 +34,23 @@ function mlm_enqueue_assets() {
   $dist_url = MLM_VUE_URL . 'assets/dist/';
   $dist_path = MLM_VUE_PATH . 'assets/dist/';
 
-  // Определяем имя CSS файла (Vite может назвать его style.css или index.css)
   $css_file = file_exists($dist_path . 'index.css') ? 'index.css' : 'style.css';
-
   if (file_exists($dist_path . $css_file)) {
     wp_enqueue_style('mlm-vue-style', $dist_url . $css_file, array(), MLM_VUE_VERSION);
   }
 
-  // JS файл (index.js из конфига Vite)
   wp_enqueue_script('mlm-vue-app', $dist_url . 'index.js', array(), MLM_VUE_VERSION, true);
 
-  // Получаем маркеры из БД
   $coords = get_option('mlm_coords', array());
 
-  // Если пусто — отдаем пустой массив, чтобы Vue не упал (или тестовую точку)
-  if (empty($coords)) {
-    $coords = array();
-  }
+  // ПРОВЕРКА: является ли текущий пользователь админом
+  $can_edit = current_user_can('manage_options');
 
-  // Передаем данные в глобальный объект window.wpData
   wp_localize_script('mlm-vue-app', 'wpData', array(
     'rest_url' => esc_url_raw(rest_url('mlm/v1')),
     'nonce'    => wp_create_nonce('wp_rest'),
-    'coords'   => $coords,
-    'is_admin' => current_user_can('manage_options')
+    'coords'   => get_option('mlm_coords', array()),
+    'can_edit' => is_admin() && current_user_can('manage_options')
   ));
 }
 
