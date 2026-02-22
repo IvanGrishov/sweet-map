@@ -2,19 +2,16 @@
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import type { MarkerData } from '@/types';
+import { useMarkers } from '@/composables/useMarkers';
 
 interface Props {
-  markers: MarkerData[];
   draggable: boolean;
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits<{
-  (e: 'add-marker', value: MarkerData): void;
-  (e: 'update-marker', value: MarkerData): void;
-}>();
+// Подключаем наш стор
+const { markers, addMarker } = useMarkers();
 
 const mapContainer = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;
@@ -30,20 +27,27 @@ const customIcon = L.divIcon({
   popupAnchor: [0, -40]
 });
 
-const renderMarkers = () => {
-  if (!map || !Array.isArray(props.markers)) return;
+/**
+ * Синхронизация маркеров Leaflet с массивом из Store
+ */
+const syncMarkers = () => {
+  if (!map) return;
 
+  // 1. Удаляем из карты те, которых больше нет в сторе
+  const storeIds = new Set(markers.value.map((m) => m.id));
   leafletMarkers.forEach((leafletMarker, id) => {
-    if (!props.markers.find((m) => m.id === id)) {
+    if (!storeIds.has(id)) {
       map?.removeLayer(leafletMarker);
       leafletMarkers.delete(id);
     }
   });
 
-  props.markers.forEach((data) => {
+  // 2. Добавляем новые или обновляем существующие
+  markers.value.forEach((data) => {
     const position: L.LatLngExpression = [Number(data.lat), Number(data.lng)];
 
     if (!leafletMarkers.has(data.id)) {
+      // Создаем новый маркер
       const newMarker = L.marker(position, {
         icon: customIcon,
         draggable: props.draggable
@@ -53,23 +57,26 @@ const renderMarkers = () => {
         closeButton: false
       });
 
+      // Обновление координат в сторе при завершении перетаскивания
       newMarker.on('dragend', () => {
         const pos = newMarker.getLatLng();
-        emit('update-marker', {
-          ...data,
-          lat: pos.lat.toFixed(6),
-          lng: pos.lng.toFixed(6)
-        });
+        data.lat = pos.lat.toFixed(6);
+        data.lng = pos.lng.toFixed(6);
       });
 
       leafletMarkers.set(data.id, newMarker);
     } else {
+      // Обновляем позицию и попап существующего
       const existingMarker = leafletMarkers.get(data.id);
       if (existingMarker) {
-        existingMarker.setLatLng(position);
-        const currentPopupContent = `<strong>${data.title || 'Без названия'}</strong>`;
-        if (existingMarker.getPopup()?.getContent() !== currentPopupContent) {
-          existingMarker.setPopupContent(currentPopupContent);
+        const currentPos = existingMarker.getLatLng();
+        if (currentPos.lat !== Number(data.lat) || currentPos.lng !== Number(data.lng)) {
+          existingMarker.setLatLng(position);
+        }
+
+        const content = `<strong>${data.title || 'Без названия'}</strong>`;
+        if (existingMarker.getPopup()?.getContent() !== content) {
+          existingMarker.setPopupContent(content);
         }
       }
     }
@@ -80,9 +87,10 @@ onMounted(async () => {
   await nextTick();
   if (!mapContainer.value) return;
 
+  // Центрируем по первой точке или по дефолту
   const startCoords: L.LatLngExpression =
-    props.markers?.length > 0
-      ? [Number(props.markers[0].lat), Number(props.markers[0].lng)]
+    markers.value.length > 0
+      ? [Number(markers.value[0].lat), Number(markers.value[0].lng)]
       : [55.7512, 37.6184];
 
   map = L.map(mapContainer.value, {
@@ -94,28 +102,28 @@ onMounted(async () => {
     attribution: '&copy; OpenStreetMap'
   }).addTo(map);
 
+  // Добавление точки кликом
   map.on('click', (e: L.LeafletMouseEvent) => {
     if (!props.draggable) return;
 
-    emit('add-marker', {
-      id: Date.now().toString(),
+    // Вызываем метод из useMarkers напрямую
+    const newId = crypto.randomUUID();
+    markers.value.push({
+      id: newId,
       lat: e.latlng.lat.toFixed(6),
       lng: e.latlng.lng.toFixed(6),
       title: 'Новая точка'
     });
   });
 
-  renderMarkers();
-  setTimeout(() => map?.invalidateSize(), 500);
+  syncMarkers();
+
+  // Исправляем баг серой карты в контейнерах
+  setTimeout(() => map?.invalidateSize(), 400);
 });
 
-watch(
-  () => props.markers,
-  () => {
-    renderMarkers();
-  },
-  { deep: true }
-);
+// Следим за изменениями в сторе
+watch(markers, () => syncMarkers(), { deep: true });
 
 onUnmounted(() => {
   if (map) {
@@ -131,9 +139,9 @@ onUnmounted(() => {
   >
     <div ref="mapContainer" class="h-full w-full"></div>
 
-    <div v-if="draggable" class="absolute bottom-1 left-1 z-1000 pointer-events-none">
+    <div v-if="draggable" class="absolute bottom-4 left-4 z-1000 pointer-events-none">
       <div
-        class="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 text-[0.6875rem] font-bold text-slate-600 shadow-sm uppercase tracking-wider"
+        class="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 text-[11px] font-bold text-slate-600 shadow-sm uppercase tracking-wider"
       >
         Кликните на карту для новой точки
       </div>
@@ -142,22 +150,21 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* Убираем @apply, чтобы избежать конфликтов с Tailwind 4 в scoped-стилях */
 :deep(.mlm-custom-marker) {
   background: transparent !important;
   border: none !important;
 }
 
 :deep(.leaflet-popup-content-wrapper) {
-  border-radius: 0.5rem;
+  border-radius: 0.5rem; /* 8px */
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  padding: 0.25rem;
+  padding: 0.25rem; /* 4px */
   font-family: inherit;
 }
 
 :deep(.leaflet-popup-content) {
   margin: 0.5rem 0.75rem;
-  font-size: 0.875rem;
+  font-size: 0.875rem; /* 14px */
   color: #1e293b;
 }
 
