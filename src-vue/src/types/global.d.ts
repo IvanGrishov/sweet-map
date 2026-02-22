@@ -9,7 +9,7 @@ declare global {
       rest_url: string;
       nonce: string;
       is_admin: boolean;
-      can_edit: boolean;
+      can_edit: boolean | number | string;
       coords: MarkerData[];
     };
   }

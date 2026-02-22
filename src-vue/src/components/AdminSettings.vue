@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { useMarkers } from '@/composables/useMarkers';
+import BaseButton from '@/components/ui/BaseButton.vue';
+import BaseIconButton from '@/components/ui/BaseIconButton.vue';
+import IconPlus from '@/components/ui/icons/IconPlus.vue';
+import IconTrash from '@/components/ui/icons/IconTrash.vue';
 
 // Подключаем стор. Теперь не нужно прокидывать пропсы сверху!
 const { markers, isSaving, addMarker, removeMarker, saveMarkers } = useMarkers();
@@ -20,27 +24,10 @@ const isDev = !window.wpData;
         >
       </div>
 
-      <button
-        type="button"
-        class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-bold hover:bg-slate-700 transition-colors shadow-sm"
-        @click="addMarker"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="3"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
+      <BaseButton @click="() => addMarker()">
+        <IconPlus />
         Добавить
-      </button>
+      </BaseButton>
     </div>
 
     <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
@@ -77,30 +64,9 @@ const isDev = !window.wpData;
               </div>
             </div>
 
-            <button
-              type="button"
-              class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all p-1 mb-0.5"
-              title="Удалить точку"
-              @click="removeMarker(marker.id)"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M3 6h18" />
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                <line x1="10" y1="11" x2="10" y2="17" />
-                <line x1="14" y1="11" x2="14" y2="17" />
-              </svg>
-            </button>
+            <BaseIconButton variant="danger" @click="() => removeMarker(marker.id)">
+              <IconTrash />
+            </BaseIconButton>
           </div>
         </div>
       </div>
