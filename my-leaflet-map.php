@@ -20,8 +20,16 @@ function mlm_enqueue_assets() {
 
   // ВАЖНО: Гарантируем, что coords — это всегда массив для Vue
   $coords = get_option('mlm_coords');
-  if (!is_array($coords)) {
-    $coords = array();
+  if (empty($coords) || !is_array($coords)) {
+    // Тестовая точка по умолчанию (например, Москва)
+    $coords = array(
+      array(
+        'id'    => 'test-1',
+        'lat'   => '55.7512',
+        'lng'   => '37.6184',
+        'title' => 'Тестовая точка',
+      )
+    );
   }
 
   wp_localize_script('mlm-vue-app', 'wpData', array(

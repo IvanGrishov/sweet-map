@@ -3,7 +3,6 @@ import { ref, computed, onMounted } from 'vue';
 import LMap from './components/LMap.vue';
 import AdminSettings from './components/AdminSettings.vue';
 
-// Типизация для маркера
 interface MarkerData {
   id: string;
   lat: string | number;
@@ -16,18 +15,39 @@ const isSaving = ref(false);
 const isDev = import.meta.env.DEV;
 
 onMounted(() => {
-  // Защищенная загрузка данных из WordPress
-  if (window.wpData?.coords && Array.isArray(window.wpData.coords)) {
-    markers.value = [...window.wpData.coords];
+  // 1. Пробуем загрузить данные из WP
+  const wpCoords = window.wpData?.coords;
+
+  if (Array.isArray(wpCoords) && wpCoords.length > 0) {
+    markers.value = [...wpCoords];
+  } else {
+    // 2. Если данных нет (первый запуск или localhost), добавляем тестовую точку
+    markers.value = [
+      {
+        id: 'test-default',
+        lat: '55.7512',
+        lng: '37.6184',
+        title: 'Тестовая локация'
+      }
+    ];
   }
 });
 
 const isAdmin = computed(() => isDev || window.wpData?.is_admin);
 
-// --- Методы управления списком ---
-
+// Добавление маркера (используется и для клика по карте, и для кнопки)
 const addMarker = (newMarker: MarkerData) => {
   markers.value.push(newMarker);
+};
+
+// Ручное добавление через кнопку в Сайдбаре
+const handleManualAdd = () => {
+  addMarker({
+    id: Date.now().toString(),
+    lat: '55.75',
+    lng: '37.61',
+    title: 'Новая точка'
+  });
 };
 
 const updateMarker = (updated: MarkerData) => {
@@ -42,6 +62,12 @@ const removeMarker = (id: string) => {
 };
 
 const handleSave = async () => {
+  if (isDev) {
+    console.log('Save triggered in Dev Mode:', markers.value);
+    alert('В режиме разработки сохранение имитируется в консоль');
+    return;
+  }
+
   isSaving.value = true;
   try {
     const response = await fetch(`${window.wpData.rest_url}/save`, {
@@ -54,12 +80,10 @@ const handleSave = async () => {
     });
 
     if (!response.ok) throw new Error('Ошибка сервера');
-
-    // Можно добавить уведомление от WordPress, если захочешь
-    alert('Настройки успешно сохранены в базе данных!');
+    alert('Сохранено в WordPress!');
   } catch (e) {
     console.error('Save Error:', e);
-    alert('Не удалось сохранить данные.');
+    alert('Ошибка сохранения');
   } finally {
     isSaving.value = false;
   }
@@ -67,13 +91,14 @@ const handleSave = async () => {
 </script>
 
 <template>
-  <div class="mlm-plugin-root p-4 flex flex-col md:flex-row gap-5 font-sans bg-slate-50 rounded-2xl border border-slate-200 shadow-sm">
+  <div class="mlm-plugin-root p-4 flex flex-col md:flex-row gap-5 font-sans bg-slate-50 rounded-2xl border border-slate-200">
 
     <AdminSettings
       v-if="isAdmin"
       :markers="markers"
       :is-saving="isSaving"
       :is-dev="isDev"
+      @add="handleManualAdd"
       @remove="removeMarker"
       @save="handleSave"
     />
@@ -84,13 +109,5 @@ const handleSave = async () => {
       @add-marker="addMarker"
       @update-marker="updateMarker"
     />
-
   </div>
 </template>
-
-<style>
-/* Глобальные сбросы для админки WordPress, чтобы стили темы не ломали Tailwind */
-.mlm-plugin-root * {
-  box-sizing: border-box;
-}
-</style>
