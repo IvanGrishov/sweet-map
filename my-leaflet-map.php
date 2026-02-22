@@ -1,45 +1,34 @@
 <?php
 /**
  * Plugin Name: My Leaflet Map Vue
- * Description: Карта на Vue 3 с использованием Tailwind v4 и TypeScript.
- * Version: 2.1
- * Author: Ivan
+ * Version: 2.3
  */
 
 if (!defined('ABSPATH')) exit;
 
-/**
- * 1. Создаем меню в админке WordPress
- */
 add_action('admin_menu', function () {
-  add_menu_page(
-    'Карта Vue',
-    'Карта Vue',
-    'manage_options',
-    'mlm-settings-page',
-    'mlm_render_page',
-    'dashicons-location'
-  );
+  add_menu_page('Карта Vue', 'Карта Vue', 'manage_options', 'mlm-settings-page', 'mlm_render_page', 'dashicons-location');
 });
 
-/**
- * 2. Подключаем ассеты и передаем данные из PHP во Vue
- */
-function mlm_enqueue_assets()
-{
+function mlm_enqueue_assets() {
   $dist_url = plugin_dir_url(__FILE__) . 'assets/dist/';
   $dist_path = plugin_dir_path(__FILE__) . 'assets/dist/';
 
-  // Проверка существования стиля (Vite может назвать его по-разному)
   $css_file = file_exists($dist_path . 'style.css') ? 'style.css' : 'index.css';
-  wp_enqueue_style('mlm-vue-style', $dist_url . $css_file, array(), '1.1');
+  wp_enqueue_style('mlm-vue-style', $dist_url . $css_file, array(), '1.3');
+  wp_enqueue_script('mlm-vue-app', $dist_url . 'index.js', array(), '1.3', true);
 
-  wp_enqueue_script('mlm-vue-app', $dist_url . 'index.js', array(), '1.1', true);
+  // ВАЖНО: Гарантируем, что coords — это всегда массив для Vue
+  $coords = get_option('mlm_coords');
+  if (!is_array($coords)) {
+    $coords = array();
+  }
 
   wp_localize_script('mlm-vue-app', 'wpData', array(
     'rest_url' => esc_url_raw(rest_url('mlm/v1')),
-    'nonce' => wp_create_nonce('wp_rest'),
-    'coords' => get_option('mlm_coords', array('lat' => '55.75', 'lng' => '37.61'))
+    'nonce'    => wp_create_nonce('wp_rest'),
+    'coords'   => $coords,
+    'is_admin' => is_admin()
   ));
 }
 
@@ -54,23 +43,26 @@ add_shortcode('my_map', function () {
   return '<div id="mlm-map-admin-root"></div>';
 });
 
-/**
- * 3. Регистрация REST API
- */
 add_action('rest_api_init', function () {
   register_rest_route('mlm/v1', '/save', array(
     'methods' => 'POST',
     'callback' => function ($request) {
       $params = $request->get_json_params();
-      $lat = sanitize_text_field($params['lat']);
-      $lng = sanitize_text_field($params['lng']);
+      $markers = isset($params['markers']) ? $params['markers'] : array();
 
-      update_option('mlm_coords', array(
-        'lat' => $lat,
-        'lng' => $lng
-      ));
-
-      return array('success' => true, 'lat' => $lat, 'lng' => $lng);
+      $sanitized = array();
+      if (is_array($markers)) {
+        foreach ($markers as $m) {
+          $sanitized[] = array(
+            'id'    => sanitize_text_field($m['id'] ?? ''),
+            'lat'   => sanitize_text_field($m['lat'] ?? ''),
+            'lng'   => sanitize_text_field($m['lng'] ?? ''),
+            'title' => sanitize_text_field($m['title'] ?? ''),
+          );
+        }
+      }
+      update_option('mlm_coords', $sanitized);
+      return array('success' => true);
     },
     'permission_callback' => function () {
       return current_user_can('manage_options');
@@ -78,23 +70,11 @@ add_action('rest_api_init', function () {
   ));
 });
 
-/**
- * 4. Поддержка type="module" для Vite
- */
 add_filter('script_loader_tag', function ($tag, $handle, $src) {
   if ('mlm-vue-app' !== $handle) return $tag;
   return '<script type="module" src="' . esc_url($src) . '"></script>';
 }, 10, 3);
 
-/**
- * 5. Рендеринг страницы
- */
-function mlm_render_page()
-{
-  ?>
-  <div class="wrap">
-    <h1>Настройки My Leaflet Map</h1>
-    <div id="mlm-map-admin-root"></div>
-  </div>
-  <?php
+function mlm_render_page() {
+  echo '<div class="wrap"><h1>Настройки карты</h1><div id="mlm-map-admin-root"></div></div>';
 }
