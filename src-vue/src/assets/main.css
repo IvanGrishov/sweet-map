@@ -18,3 +18,16 @@
 #mlm-map-admin-root :where(.is-layout-constrained) > :first-child {
   margin-block-start: 0 !important; /* Или то значение, которое нужно тебе */
 }
+
+@layer base {
+  button,
+  [type='button'],
+  [type='reset'],
+  [type='submit'] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: default;
+  }
+}
