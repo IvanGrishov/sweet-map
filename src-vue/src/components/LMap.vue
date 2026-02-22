@@ -115,7 +115,7 @@ watch(mapCenterTrigger, (coords) => {
 
       map.flyTo([lat, lng], currentZoom, {
         animate: true,
-        duration: 1
+        duration: 0.3
       });
 
       const leafletMarker = leafletMarkers.get(activeMarkerId.value || '');
