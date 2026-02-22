@@ -21,14 +21,22 @@ if (markers.value.length === 0) {
 export function useMarkers() {
   const addMarker = (customData?: Partial<MarkerData>) => {
     const lastMarker = markers.value[markers.value.length - 1];
+
+    // Приводим к числу сразу, чтобы математика была чистой
     const baseLat = lastMarker ? Number(lastMarker.lat) : 55.7512;
     const baseLng = lastMarker ? Number(lastMarker.lng) : 37.6184;
+
     const offset = markers.value.length > 0 ? 0.02 : 0;
+
+    // Рассчитываем новые значения как числа
+    const newLat = customData?.lat ? Number(customData.lat) : baseLat;
+    const newLng = customData?.lng ? Number(customData.lng) : baseLng + offset;
 
     const newMarker: MarkerData = {
       id: crypto.randomUUID(),
-      lat: (customData?.lat || baseLat).toString(),
-      lng: (customData?.lng || baseLng + offset).toString(),
+      // .toFixed() теперь работает, так как newLat и newLng точно числа
+      lat: newLat.toFixed(6),
+      lng: newLng.toFixed(6),
       title: customData?.title || `Точка ${markers.value.length + 1}`
     };
 

@@ -6,6 +6,7 @@ import PrimaryButton from '@/components/ui/PrimaryButton.vue';
 import IconSave from '@/components/ui/icons/IconSave.vue';
 import MarkerItem from '@/components/MarkerItem.vue';
 import { MarkerData } from '@/types';
+import { nextTick, ref, watch } from 'vue';
 
 const { markers, isSaving, addMarker, removeMarker, saveMarkers, centerOnMarker, activeMarkerId } =
   useMarkers();
@@ -19,6 +20,24 @@ const handleSelect = (marker: MarkerData) => {
 };
 
 const isDev = !window.wpData;
+
+const scrollContainer = ref<HTMLElement | null>(null);
+
+watch(activeMarkerId, async (newId) => {
+  if (!newId || !scrollContainer.value) return;
+
+  await nextTick();
+
+  // Ищем элемент по селектору атрибута [data-id="..."]
+  const activeElement = scrollContainer.value.querySelector(`[data-id="${newId}"]`) as HTMLElement;
+
+  if (activeElement) {
+    activeElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center' // Центрируем строго посередине контейнера
+    });
+  }
+});
 </script>
 
 <template>
@@ -39,11 +58,12 @@ const isDev = !window.wpData;
       </BaseButton>
     </div>
 
-    <div class="flex-1 overflow-y-auto custom-scrollbar -m-2 p-2 space-y-4">
+    <div ref="scrollContainer" class="flex-1 overflow-y-auto custom-scrollbar -m-2 p-2 space-y-4">
       <MarkerItem
         v-for="(marker, index) in markers"
         :key="marker.id"
         v-model="markers[index]"
+        :data-id="marker.id"
         :class="[
           'transition-all duration-300 rounded-2xl cursor-pointer relative',
           activeMarkerId === marker.id
