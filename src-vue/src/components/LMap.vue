@@ -11,7 +11,7 @@ interface Props {
 const props = defineProps<Props>();
 
 // Подключаем наш стор
-const { markers, addMarker } = useMarkers();
+const { markers } = useMarkers();
 
 const mapContainer = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;

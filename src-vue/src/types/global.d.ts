@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import type { MarkerData } from './index';
 
 // Расширяем глобальный объект Window

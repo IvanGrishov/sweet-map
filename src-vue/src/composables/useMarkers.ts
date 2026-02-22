@@ -1,32 +1,35 @@
 import { ref, readonly } from 'vue';
 import type { MarkerData } from '@/types';
 
-// Инициализируем из данных WP или создаем пустой массив
-const initialMarkers =
-  window.wpData?.coords && window.wpData.coords.length > 0 ? window.wpData.coords : [];
-
-const markers = ref<MarkerData[]>(initialMarkers);
+// 1. Загружаем из WP или создаем пустой массив
+const initialData = window.wpData?.coords || [];
+const markers = ref<MarkerData[]>(initialData);
 const isSaving = ref(false);
 
-// Если при загрузке нет ни одной точки, добавляем одну дефолтную сразу
+// 2. ГАРАНТИРУЕМ наличие точки по умолчанию, если список пуст
 if (markers.value.length === 0) {
   markers.value.push({
-    id: crypto.randomUUID(),
-    lat: 55.7512,
-    lng: 37.6184,
+    id: 'default-point',
+    lat: '55.7512',
+    lng: '37.6184',
     title: 'Начальная точка'
   });
 }
 
 export function useMarkers() {
-  const addMarker = () => {
+  const addMarker = (customData?: Partial<MarkerData>) => {
+    const lastMarker = markers.value[markers.value.length - 1];
+    const baseLat = lastMarker ? Number(lastMarker.lat) : 55.7512;
+    const baseLng = lastMarker ? Number(lastMarker.lng) : 37.6184;
+    const offset = markers.value.length > 0 ? 0.02 : 0;
+
     const newMarker: MarkerData = {
       id: crypto.randomUUID(),
-      // Берем координаты последней точки или центр Москвы
-      lat: markers.value.length > 0 ? markers.value[markers.value.length - 1].lat : 55.7512,
-      lng: markers.value.length > 0 ? markers.value[markers.value.length - 1].lng : 37.6184,
-      title: 'Новая точка'
+      lat: (customData?.lat || baseLat).toString(),
+      lng: (customData?.lng || baseLng + offset).toString(),
+      title: customData?.title || `Точка ${markers.value.length + 1}`
     };
+
     markers.value.push(newMarker);
   };
 
@@ -35,10 +38,7 @@ export function useMarkers() {
   };
 
   const saveMarkers = async () => {
-    if (!window.wpData?.rest_url || !window.wpData?.nonce) {
-      console.warn('Режим разработки: данные сохраняются локально');
-      return;
-    }
+    if (!window.wpData?.rest_url) return;
 
     isSaving.value = true;
     try {
@@ -50,11 +50,8 @@ export function useMarkers() {
         },
         body: JSON.stringify({ markers: markers.value })
       });
-
-      if (!response.ok) throw new Error('Ошибка сохранения');
-      console.log('Сохранено в WordPress');
-    } catch (error) {
-      console.error(error);
+      if (!response.ok) throw new Error();
+    } catch (e) {
       alert('Ошибка при сохранении');
     } finally {
       isSaving.value = false;
