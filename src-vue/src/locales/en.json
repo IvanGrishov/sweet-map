@@ -1,0 +1,17 @@
+{
+  "admin": {
+    "title": "Marker Management",
+    "locations": "Locations",
+    "total": "Total:",
+    "add_marker": "Add",
+    "save": "Save All",
+    "saving": "Saving...",
+    "no_markers": "Click the \"Add\" button or click on the map",
+    "marker_item": "Point {index}",
+    "error_save": "Save error",
+    "untitled": "Untitled",
+    "initial_point": "Initial point",
+    "click_map_hint": "Click on the map to add a new point",
+    "place_name": "Place name"
+  }
+}
