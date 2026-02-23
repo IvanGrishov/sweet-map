@@ -1,27 +1,68 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import IconArrowDown from '@/components/ui/icons/IconArrowDown.vue';
+
 const model = defineModel({ type: String, required: true });
+const isOpen = ref(false);
+const wrapper = ref(null);
+
+// Твой конфиг
+const mapOptions = [
+  { value: 'osm', label: 'admin.style_osm' },
+  { value: 'satellite', label: 'admin.style_satellite' }
+];
+
+const selectOption = (val) => {
+  model.value = val;
+  isOpen.value = false;
+};
+
+// Закрытие при клике мимо
+const handleClickOutside = (event) => {
+  if (wrapper.value && !wrapper.value.contains(event.target)) {
+    isOpen.value = false;
+  }
+};
+
+onMounted(() => document.addEventListener('click', handleClickOutside));
+onUnmounted(() => document.removeEventListener('click', handleClickOutside));
 </script>
 
 <template>
-  <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm mt-4">
+  <div ref="wrapper" class="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm mt-4">
     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-3">
       {{ $t('admin.map_style') }}
     </label>
 
     <div class="relative">
-      <select
-        v-model="model"
-        class="w-full pl-3 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all appearance-none cursor-pointer hover:bg-slate-100/50"
-        style="
-          background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22/%3E%3C/svg%3E');
-          background-repeat: no-repeat;
-          background-position: right 12px center;
-          background-size: 16px;
-        "
+      <div
+        class="w-full pl-3 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100/50 transition-all flex items-center justify-between"
+        :class="{ 'ring-4 ring-indigo-500/10 border-indigo-500 bg-white': isOpen }"
+        @click="isOpen = !isOpen"
       >
-        <option value="osm">{{ $t('admin.style_osm') }}</option>
-        <option value="satellite">{{ $t('admin.style_satellite') }}</option>
-      </select>
+        <span>{{ $t(mapOptions.find((o) => o.value === model)?.label) }}</span>
+
+        <div class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+          <IconArrowDown
+            class="w-6 h-6 transition-transform duration-200"
+            :class="{ 'rotate-180': isOpen }"
+          />
+        </div>
+      </div>
+
+      <div
+        v-if="isOpen"
+        class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden py-1"
+      >
+        <div
+          v-for="option in mapOptions"
+          :key="option.value"
+          class="px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition-colors"
+          @click="selectOption(option.value)"
+        >
+          {{ $t(option.label) }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
