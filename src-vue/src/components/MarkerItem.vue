@@ -17,14 +17,18 @@ defineEmits<{
     @click="$emit('select', marker)"
   >
     <div class="flex flex-col gap-2">
-      <input
-        v-model="marker.title"
-        type="text"
-        :placeholder="$t('admin.place_name')"
-        class="bg-transparent font-bold text-slate-700 border-none p-0 focus:ring-0 placeholder:text-slate-400 text-sm outline-none"
-      />
-
-      <div class="flex items-end justify-between gap-2">
+      <div class="flex justify-between items-center">
+        <input
+          v-model="marker.title"
+          type="text"
+          :placeholder="$t('admin.place_name')"
+          class="bg-transparent font-bold text-slate-700 border-none p-0 focus:ring-0 placeholder:text-slate-400 text-sm outline-none"
+        />
+        <BaseIconButton variant="danger" title="Удалить точку" @click="$emit('remove', marker.id)">
+          <IconTrash class="w-5 h-5" />
+        </BaseIconButton>
+      </div>
+      <div class="flex justify-between gap-2">
         <div class="flex flex-col gap-1 flex-1">
           <div class="flex items-center gap-1.5">
             <span class="text-[0.625rem] font-bold text-slate-400 w-6 uppercase">Lat</span>
@@ -43,10 +47,6 @@ defineEmits<{
             />
           </div>
         </div>
-
-        <BaseIconButton variant="danger" title="Удалить точку" @click="$emit('remove', marker.id)">
-          <IconTrash />
-        </BaseIconButton>
       </div>
     </div>
   </div>

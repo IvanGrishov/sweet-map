@@ -15,14 +15,7 @@ const variantClasses = {
 </script>
 
 <template>
-  <button
-    type="button"
-    :title="title"
-    :class="[
-      'opacity-0 group-hover:opacity-100 transition-all p-1 mb-0.5 disabled:opacity-30',
-      variantClasses[variant]
-    ]"
-  >
+  <button type="button" :title="title" :class="[variantClasses[variant]]">
     <slot />
   </button>
 </template>
