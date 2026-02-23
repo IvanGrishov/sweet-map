@@ -7,6 +7,10 @@ import IconSave from '@/components/ui/icons/IconSave.vue';
 import MarkerItem from '@/components/MarkerItem.vue';
 import { MarkerData } from '@/types';
 import { nextTick, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import DevBadge from '@/components/ui/DevBadge.vue';
+
+const { t } = useI18n();
 
 const { markers, isSaving, addMarker, removeMarker, saveMarkers, centerOnMarker, activeMarkerId } =
   useMarkers();
@@ -46,15 +50,17 @@ watch(activeMarkerId, async (newId) => {
   >
     <div class="flex items-center justify-between mb-1">
       <div class="flex flex-col">
-        <h3 class="m-0 text-slate-800 text-xl font-black tracking-tight leading-tight">Локации</h3>
+        <h3 class="m-0 text-slate-800 text-xl font-black tracking-tight leading-tight">
+          {{ t('admin.locations') }}
+        </h3>
         <span class="text-[0.625rem] text-slate-400 font-bold uppercase tracking-widest">
-          Всего: {{ markers.length }}
+          {{ t('admin.total') }} {{ markers.length }}
         </span>
       </div>
 
       <BaseButton @click="addMarker">
         <IconPlus />
-        Добавить
+        {{ t('admin.add_marker') }}
       </BaseButton>
     </div>
 
@@ -75,8 +81,7 @@ watch(activeMarkerId, async (newId) => {
       />
 
       <div v-if="markers.length === 0" class="text-center text-sm text-slate-400 italic py-8">
-        Нажмите кнопку «Добавить» или <br />
-        кликните по карте
+        {{ t('admin.no_markers') }}
       </div>
     </div>
 
@@ -84,15 +89,10 @@ watch(activeMarkerId, async (newId) => {
       <template #icon>
         <IconSave />
       </template>
-      Сохранить всё
+      {{ t('admin.save') }}
     </PrimaryButton>
 
-    <div
-      v-if="isDev"
-      class="text-[0.5625rem] tracking-widest font-black text-slate-300 text-center uppercase"
-    >
-      Development Mode
-    </div>
+    <DevBadge v-if="isDev" />
   </div>
 </template>
 

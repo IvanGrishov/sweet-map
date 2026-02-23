@@ -45,6 +45,7 @@ function mlm_enqueue_assets() {
     'rest_url' => esc_url_raw(rest_url('mlm/v1')),
     'nonce'    => wp_create_nonce('wp_rest'),
     'coords'   => get_option('mlm_coords', array()),
+    'locale'   => get_locale(),
     'can_edit' => is_admin() && current_user_can('manage_options')
   ));
 }

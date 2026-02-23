@@ -154,7 +154,7 @@ onUnmounted(() => {
       <div
         class="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 text-[0.6875rem] font-bold text-slate-600 shadow-sm uppercase tracking-wider"
       >
-        Кликните на карту для новой точки
+        {{ $t('admin.click_map_hint') }}
       </div>
     </div>
   </div>

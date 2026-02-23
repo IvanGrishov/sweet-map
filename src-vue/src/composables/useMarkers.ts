@@ -1,5 +1,6 @@
 import { ref, readonly } from 'vue';
 import type { MarkerData } from '@/types';
+import { useI18n } from 'vue-i18n';
 
 // 1. Загружаем из WP или создаем пустой массив
 const initialData = window.wpData?.coords || [];
@@ -8,17 +9,28 @@ const isSaving = ref(false);
 const activeMarkerId = ref<string | null>(null);
 const mapCenterTrigger = ref<{ lat: string; lng: string } | null>(null);
 
-// 2. ГАРАНТИРУЕМ наличие точки по умолчанию, если список пуст
-if (markers.value.length === 0) {
-  markers.value.push({
-    id: 'default-point',
-    lat: '55.7512',
-    lng: '37.6184',
-    title: 'Начальная точка'
-  });
-}
+let isInitialized = false;
 
 export function useMarkers() {
+  const { t } = useI18n();
+
+  // 2. ГАРАНТИРУЕМ наличие точки по умолчанию, если список пуст
+  const initDefaultPoint = () => {
+    // Проверяем и массив, и флаг
+    if (!isInitialized && markers.value.length === 0) {
+      markers.value.push({
+        id: 'default-point',
+        lat: '55.7512',
+        lng: '37.6184',
+        title: t('admin.initial_point')
+      });
+
+      isInitialized = true; // Помечаем, что закончили
+    }
+  };
+
+  initDefaultPoint();
+
   const addMarker = (customData?: Partial<MarkerData>) => {
     const lastMarker = markers.value[markers.value.length - 1];
 
@@ -37,7 +49,7 @@ export function useMarkers() {
       // .toFixed() теперь работает, так как newLat и newLng точно числа
       lat: newLat.toFixed(6),
       lng: newLng.toFixed(6),
-      title: customData?.title || `Точка ${markers.value.length + 1}`
+      title: customData?.title || t('admin.marker_item', { index: markers.value.length + 1 })
     };
 
     markers.value.push(newMarker);
@@ -70,8 +82,8 @@ export function useMarkers() {
         body: JSON.stringify({ markers: markers.value })
       });
       if (!response.ok) throw new Error();
-    } catch (e) {
-      alert('Ошибка при сохранении');
+    } catch {
+      alert(t('admin.error_save'));
     } finally {
       isSaving.value = false;
     }

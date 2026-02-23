@@ -5,6 +5,10 @@ interface Props {
 }
 
 defineProps<Props>();
+
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -20,7 +24,7 @@ defineProps<Props>();
 
     <template v-else>
       <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-      <span>Запись...</span>
+      <span>{{ t('admin.saving') }}</span>
     </template>
   </button>
 </template>

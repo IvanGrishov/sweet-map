@@ -20,7 +20,7 @@ defineEmits<{
       <input
         v-model="marker.title"
         type="text"
-        placeholder="Название места"
+        :placeholder="$t('admin.place_name')"
         class="bg-transparent font-bold text-slate-700 border-none p-0 focus:ring-0 placeholder:text-slate-400 text-sm outline-none"
       />
 
