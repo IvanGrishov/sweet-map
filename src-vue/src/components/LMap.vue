@@ -174,7 +174,7 @@ watch(
 
 <template>
   <div
-    class="flex-1 min-h-125 rounded-2xl overflow-hidden border border-slate-200 shadow-xl relative z-10 bg-slate-50"
+    class="flex-1 max-h-125 rounded-2xl overflow-hidden border border-slate-200 shadow-xl relative z-10 bg-slate-50 sticky top-15"
   >
     <div ref="mapContainer" class="h-full w-full"></div>
 
