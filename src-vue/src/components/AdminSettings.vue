@@ -9,6 +9,7 @@ import { MarkerData } from '@/types';
 import { nextTick, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import DevBadge from '@/components/ui/DevBadge.vue';
+import MapZoomControl from '@/components/MapZoomControl.vue';
 
 const { t } = useI18n();
 
@@ -93,27 +94,7 @@ watch(activeMarkerId, async (newId) => {
       </div>
     </div>
 
-    <div class="p-4 bg-white rounded-lg shadow-sm border border-gray-200">
-      <div class="flex justify-between items-center mb-4">
-        <label class="text-[0.9rem] font-medium text-gray-700">
-          {{ t('admin.map_zoom') }}: {{ zoom }}
-        </label>
-      </div>
-
-      <input
-        v-model="zoom"
-        type="range"
-        min="1"
-        max="18"
-        step="1"
-        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-      />
-
-      <div class="flex justify-between text-[0.75rem] text-gray-500 mt-2">
-        <span>1</span>
-        <span>18</span>
-      </div>
-    </div>
+    <MapZoomControl />
 
     <PrimaryButton :loading="isSaving" @click="saveMarkers">
       <template #icon>

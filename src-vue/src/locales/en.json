@@ -12,6 +12,9 @@
     "untitled": "Untitled",
     "initial_point": "Initial point",
     "click_map_hint": "Click on the map to add a new point",
-    "place_name": "Place name"
+    "place_name": "Place name",
+    "map_zoom": "Map Zoom",
+    "zoom_min": "Мин",
+    "zoom_max": "Макс"
   }
 }

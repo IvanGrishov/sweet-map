@@ -8,7 +8,7 @@ const markers = ref<MarkerData[]>(initialData);
 const isSaving = ref(false);
 const activeMarkerId = ref<string | null>(null);
 const mapCenterTrigger = ref<{ lat: string; lng: string } | null>(null);
-const zoom = ref(window.wpData?.zoom || 13);
+const zoom = ref(window.wpData?.zoom || 10);
 
 let isInitialized = false;
 
