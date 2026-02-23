@@ -8,6 +8,7 @@ const markers = ref<MarkerData[]>(initialData);
 const isSaving = ref(false);
 const activeMarkerId = ref<string | null>(null);
 const mapCenterTrigger = ref<{ lat: string; lng: string } | null>(null);
+const zoom = ref(window.wpData?.zoom || 13);
 
 let isInitialized = false;
 
@@ -79,7 +80,10 @@ export function useMarkers() {
           'Content-Type': 'application/json',
           'X-WP-Nonce': window.wpData.nonce
         },
-        body: JSON.stringify({ markers: markers.value })
+        body: JSON.stringify({
+          markers: markers.value,
+          zoom: Number(zoom.value)
+        })
       });
       if (!response.ok) throw new Error();
     } catch {
@@ -97,6 +101,7 @@ export function useMarkers() {
     saveMarkers,
     activeMarkerId,
     mapCenterTrigger,
-    centerOnMarker
+    centerOnMarker,
+    zoom
   };
 }

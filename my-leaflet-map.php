@@ -46,7 +46,8 @@ function mlm_enqueue_assets() {
     'nonce'    => wp_create_nonce('wp_rest'),
     'coords'   => get_option('mlm_coords', array()),
     'locale'   => get_locale(),
-    'can_edit' => is_admin() && current_user_can('manage_options')
+    'can_edit' => is_admin() && current_user_can('manage_options'),
+    'zoom' => (int) get_option('mlm_map_zoom', 13),
   ));
 }
 
@@ -95,6 +96,8 @@ add_action('rest_api_init', function () {
 function mlm_handle_save_markers($request) {
   $params = $request->get_json_params();
   $markers = $params['markers'] ?? array();
+  // Достаем зум из параметров (дефолт 13, если вдруг не пришел)
+  $zoom = $params['zoom'] ?? 13;
 
   if (!is_array($markers)) {
     return new WP_Error('invalid_data', 'Данные должны быть массивом', array('status' => 400));
@@ -110,11 +113,16 @@ function mlm_handle_save_markers($request) {
     );
   }
 
-  $updated = update_option('mlm_coords', $sanitized_markers);
+  // Сохраняем маркеры
+  update_option('mlm_coords', $sanitized_markers);
+
+  // СОХРАНЯЕМ ЗУМ (приводим к числу для безопасности)
+  update_option('mlm_map_zoom', intval($zoom));
 
   return new WP_REST_Response(array(
     'success' => true,
-    'message' => 'Маркеры сохранены'
+    'message' => 'Настройки сохранены',
+    'debug_zoom' => intval($zoom) // Можно вернуть для отладки в консоли
   ), 200);
 }
 

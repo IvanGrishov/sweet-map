@@ -11,6 +11,7 @@ declare global {
       is_admin: boolean;
       can_edit: boolean | number | string;
       coords: MarkerData[];
+      zoom: number;
     };
   }
 }

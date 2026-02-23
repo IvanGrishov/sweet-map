@@ -11,7 +11,7 @@ interface Props {
 const props = defineProps<Props>();
 
 // Достаем триггер и маркеры из стора
-const { markers, activeMarkerId, mapCenterTrigger, centerOnMarker } = useMarkers();
+const { markers, activeMarkerId, mapCenterTrigger, centerOnMarker, zoom } = useMarkers();
 
 const mapContainer = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;
@@ -91,7 +91,7 @@ onMounted(async () => {
   map = L.map(mapContainer.value, {
     tap: false,
     zoomControl: true
-  }).setView(startCoords, 11);
+  }).setView(startCoords, zoom.value);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap'
@@ -140,6 +140,12 @@ onUnmounted(() => {
   if (map) {
     map.remove();
     map = null;
+  }
+});
+
+watch(zoom, (newZoom) => {
+  if (map) {
+    map.setZoom(Number(newZoom));
   }
 });
 </script>
