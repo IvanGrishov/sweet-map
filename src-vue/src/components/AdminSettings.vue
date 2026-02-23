@@ -13,16 +13,8 @@ import MapZoomControl from '@/components/MapZoomControl.vue';
 
 const { t } = useI18n();
 
-const {
-  markers,
-  isSaving,
-  addMarker,
-  removeMarker,
-  saveMarkers,
-  centerOnMarker,
-  activeMarkerId,
-  zoom
-} = useMarkers();
+const { markers, isSaving, addMarker, removeMarker, saveMarkers, centerOnMarker, activeMarkerId } =
+  useMarkers();
 
 defineEmits<{
   select: [marker: MarkerData];
