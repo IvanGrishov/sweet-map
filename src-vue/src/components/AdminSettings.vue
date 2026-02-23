@@ -104,14 +104,14 @@ watch(activeMarkerId, async (newId) => {
         v-model="zoom"
         type="range"
         min="1"
-        max="20"
+        max="18"
         step="1"
         class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
       />
 
       <div class="flex justify-between text-[0.75rem] text-gray-500 mt-2">
         <span>1</span>
-        <span>20</span>
+        <span>18</span>
       </div>
     </div>
 
