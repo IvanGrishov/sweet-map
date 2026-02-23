@@ -3,12 +3,15 @@ import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useMarkers } from '@/composables/useMarkers';
+import { MAP_LAYERS } from '@/constants';
 
 interface Props {
   draggable: boolean;
+  mapStyle: string;
 }
 
 const props = defineProps<Props>();
+let currentTileLayer: L.TileLayer | null = null;
 
 // Достаем триггер и маркеры из стора
 const { markers, activeMarkerId, mapCenterTrigger, centerOnMarker, zoom } = useMarkers();
@@ -93,9 +96,7 @@ onMounted(async () => {
     zoomControl: true
   }).setView(startCoords, zoom.value);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
-  }).addTo(map);
+  updateMapStyle(props.mapStyle);
 
   map.on('click', (e: L.LeafletMouseEvent) => {
     if (!props.draggable) return;
@@ -148,6 +149,27 @@ watch(zoom, (newZoom) => {
     map.setZoom(Number(newZoom));
   }
 });
+
+// Функция смены слоя
+const updateMapStyle = (style: string) => {
+  if (!map) return;
+
+  if (currentTileLayer) {
+    map.removeLayer(currentTileLayer);
+  }
+
+  const url = MAP_LAYERS[style as keyof typeof MAP_LAYERS] || MAP_LAYERS.osm;
+  currentTileLayer = L.tileLayer(url, {
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+};
+
+watch(
+  () => props.mapStyle,
+  (newStyle) => {
+    updateMapStyle(newStyle);
+  }
+);
 </script>
 
 <template>
@@ -173,15 +195,15 @@ watch(zoom, (newZoom) => {
 }
 
 :deep(.leaflet-popup-content-wrapper) {
-  border-radius: 0.5rem;
+  border-radius: 8px; /* Вместо 0.5rem */
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  padding: 0.25rem;
+  padding: 4px; /* Вместо 0.25rem */
   font-family: inherit;
 }
 
 :deep(.leaflet-popup-content) {
-  margin: 0.5rem 0.75rem;
-  font-size: 0.875rem;
+  margin: 8px 12px; /* Вместо 0.5rem 0.75rem */
+  font-size: 14px; /* Вместо 0.875rem */
   color: #1e293b;
 }
 

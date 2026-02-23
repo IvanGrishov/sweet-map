@@ -14,6 +14,9 @@
     "place_name": "Название места",
     "map_zoom": "Масштаб карты",
     "zoom_min": "Мин",
-    "zoom_max": "Макс"
+    "zoom_max": "Макс",
+    "map_style": "Стиль карты",
+    "style_osm": "Стандарт (OSM)",
+    "style_satellite": "Спутник (HD)"
   }
 }

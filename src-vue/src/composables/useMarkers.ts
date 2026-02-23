@@ -9,6 +9,7 @@ const isSaving = ref(false);
 const activeMarkerId = ref<string | null>(null);
 const mapCenterTrigger = ref<{ lat: string; lng: string } | null>(null);
 const zoom = ref(window.wpData?.zoom || 10);
+const mapStyle = ref(window.wpData?.mapStyle || 'osm');
 
 let isInitialized = false;
 
@@ -82,7 +83,8 @@ export function useMarkers() {
         },
         body: JSON.stringify({
           markers: markers.value,
-          zoom: Number(zoom.value)
+          zoom: Number(zoom.value),
+          map_style: mapStyle.value
         })
       });
       if (!response.ok) throw new Error();
@@ -102,6 +104,7 @@ export function useMarkers() {
     activeMarkerId,
     mapCenterTrigger,
     centerOnMarker,
-    zoom
+    zoom,
+    mapStyle
   };
 }

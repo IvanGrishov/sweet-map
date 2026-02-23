@@ -13,6 +13,9 @@
     "place_name": "Place name",
     "map_zoom": "Map Zoom",
     "zoom_min": "Мин",
-    "zoom_max": "Макс"
+    "zoom_max": "Макс",
+    "map_style": "Map Style",
+    "style_osm": "Standard (OSM)",
+    "style_satellite": "Satellite (HD)"
   }
 }

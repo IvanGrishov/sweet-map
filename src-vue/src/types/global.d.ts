@@ -2,7 +2,6 @@
 
 import type { MarkerData } from './index';
 
-// Расширяем глобальный объект Window
 declare global {
   interface Window {
     wpData?: {
@@ -12,6 +11,7 @@ declare global {
       can_edit: boolean | number | string;
       coords: MarkerData[];
       zoom: number;
+      mapStyle: string;
     };
   }
 }
