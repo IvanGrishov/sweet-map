@@ -18,7 +18,9 @@ const { mapStyle } = useMarkers();
 </script>
 
 <template>
-  <div class="mlm-plugin-root flex flex-col md:flex-row gap-5 p-4 font-sans min-h-150">
+  <div
+    class="mlm-plugin-root flex flex-col md:flex-row gap-5 p-4 pt-8 font-sans min-h-150 relative"
+  >
     <AdminSettings v-if="canEdit" />
     <LMap :draggable="canEdit" :map-style="mapStyle" />
   </div>

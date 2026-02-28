@@ -56,60 +56,63 @@ watch(activeMarkerId, async (newId) => {
 
 <template>
   <div
-    class="mlm-sidebar flex flex-col gap-4 w-80 p-4 rounded-2xl bg-white border border-slate-200 shadow-xl"
+    class="mlm-sidebar flex flex-col gap-4 w-80 p-4 pt-0 rounded-2xl bg-white border border-slate-200 shadow-xl relative"
   >
-    <div class="flex items-center justify-between mb-1">
-      <div class="flex flex-col">
-        <h3 class="m-0 text-slate-800 text-xl font-black tracking-tight leading-tight">
-          {{ t('admin.locations') }}
-        </h3>
-        <span class="text-[0.625rem] text-slate-400 font-bold uppercase tracking-widest">
-          {{ t('admin.total') }} {{ markers.length }}
-        </span>
+    <div class="sticky top-11 z-20 -mx-4 py-4 bg-white border-b border-slate-300">
+      <PrimaryButton :loading="isSaving" @click="saveMarkers">
+        <template #icon>
+          <IconSave />
+        </template>
+        {{ t('admin.save') }}
+      </PrimaryButton>
+    </div>
+    <div class="pt-2">
+      <div class="flex items-center justify-between mb-1">
+        <div class="flex flex-col">
+          <h3 class="m-0 text-slate-800 text-xl font-black tracking-tight leading-tight">
+            {{ t('admin.locations') }}
+          </h3>
+          <span class="text-[0.625rem] text-slate-400 font-bold uppercase tracking-widest">
+            {{ t('admin.total') }} {{ markers.length }}
+          </span>
+        </div>
+
+        <BaseButton @click="addMarker">
+          <IconPlus />
+          {{ t('admin.add_marker') }}
+        </BaseButton>
       </div>
 
-      <BaseButton @click="addMarker">
-        <IconPlus />
-        {{ t('admin.add_marker') }}
-      </BaseButton>
-    </div>
+      <div
+        ref="scrollContainer"
+        class="overflow-y-auto custom-scrollbar p-2 relative -left-2 max-h-110 flex flex-col gap-4 w-[calc(100%+16px)]"
+      >
+        <MarkerItem
+          v-for="(marker, index) in markers"
+          :key="marker.id"
+          v-model="markers[index]"
+          :data-id="marker.id"
+          :class="[
+            'transition-all duration-300 rounded-2xl cursor-pointer relative',
+            activeMarkerId === marker.id
+              ? 'bg-white border border-indigo-900 ring-2 ring-indigo-500 scale-[1.01] z-10'
+              : 'bg-slate-100 border border-transparent opacity-70 hover:opacity-100 hover:bg-white hover:border-slate-200'
+          ]"
+          @remove="removeMarker"
+          @select="handleSelect"
+        />
 
-    <div
-      ref="scrollContainer"
-      class="overflow-y-auto custom-scrollbar p-2 relative -left-2 max-h-110 flex flex-col gap-4 w-[calc(100%+16px)]"
-    >
-      <MarkerItem
-        v-for="(marker, index) in markers"
-        :key="marker.id"
-        v-model="markers[index]"
-        :data-id="marker.id"
-        :class="[
-          'transition-all duration-300 rounded-2xl cursor-pointer relative',
-          activeMarkerId === marker.id
-            ? 'bg-white border border-indigo-900 ring-2 ring-indigo-500 scale-[1.01] z-10'
-            : 'bg-slate-100 border border-transparent opacity-70 hover:opacity-100 hover:bg-white hover:border-slate-200'
-        ]"
-        @remove="removeMarker"
-        @select="handleSelect"
-      />
-
-      <div v-if="markers.length === 0" class="text-center text-sm text-slate-400 italic py-8">
-        {{ t('admin.no_markers') }}
+        <div v-if="markers.length === 0" class="text-center text-sm text-slate-400 italic py-8">
+          {{ t('admin.no_markers') }}
+        </div>
       </div>
+
+      <MapZoomControl />
+
+      <MapStyleSelect v-model="mapStyle" />
+
+      <DevBadge v-if="isDev" />
     </div>
-
-    <MapZoomControl />
-
-    <MapStyleSelect v-model="mapStyle" />
-
-    <PrimaryButton :loading="isSaving" @click="saveMarkers">
-      <template #icon>
-        <IconSave />
-      </template>
-      {{ t('admin.save') }}
-    </PrimaryButton>
-
-    <DevBadge v-if="isDev" />
   </div>
 </template>
 
