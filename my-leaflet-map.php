@@ -15,10 +15,15 @@ define('MLM_VUE_PATH', plugin_dir_path(__FILE__));
 /**
  * Регистрация страницы в админке
  */
+
+add_action('init', function() {
+  load_plugin_textdomain('map', false, dirname(plugin_basename(__FILE__)) . '/languages');
+});
+
 add_action('admin_menu', function () {
   add_menu_page(
-    'Карта Vue',
-    'Карта Vue',
+    __('Vue Map', 'map'),
+    __('Vue Map', 'map'),
     'manage_options',
     'mlm-settings-page',
     'mlm_render_page',
