@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { useMarkers } from '@/composables/useMarkers';
-import BaseButton from '@/components/ui/BaseButton.vue';
-import IconPlus from '@/components/ui/icons/IconPlus.vue';
 import MarkerItem from '@/components/settings/MarkerItem.vue';
 import MarkerEditor from '@/components/settings/MarkerEditor.vue';
 import { nextTick, ref, watch } from 'vue';
@@ -12,7 +10,7 @@ import MapStyleSelect from '@/components/settings/MapStyleSelect.vue';
 
 const { t } = useI18n();
 
-const { markers, activeMarkerId, openNewMarker, openEditMarker, mapStyle } = useMarkers();
+const { markers, activeMarkerId, openEditMarker, mapStyle } = useMarkers();
 
 const isDev = !window.wpData;
 
@@ -46,10 +44,6 @@ watch(activeMarkerId, async (newId) => {
           </h3>
         </div>
 
-        <BaseButton @click="openNewMarker">
-          <IconPlus />
-          {{ t('admin.add_marker') }}
-        </BaseButton>
       </div>
 
       <!-- Marker list -->
