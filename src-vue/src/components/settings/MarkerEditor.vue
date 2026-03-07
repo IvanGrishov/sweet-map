@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMarkers } from '@/composables/useMarkers';
 import PrimaryButton from '@/components/ui/PrimaryButton.vue';
@@ -15,10 +15,18 @@ import FieldImage from '@/components/editor/FieldImage.vue';
 import FieldLink from '@/components/editor/FieldLink.vue';
 
 const { t } = useI18n();
-const { draftMarker, draftIsNew, isSaving, saveDraft, cancelDraft, deleteDraftMarker } =
+const { draftMarker, draftIsNew, isSaving, isDirty, saveDraft, cancelDraft, deleteDraftMarker } =
   useMarkers();
 
 const draft = computed(() => draftMarker.value);
+
+const isShaking = ref(false);
+watch(isDirty, (val, oldVal) => {
+  if (val && !oldVal) {
+    isShaking.value = true;
+    setTimeout(() => { isShaking.value = false; }, 600);
+  }
+});
 </script>
 
 <template>
@@ -64,7 +72,12 @@ const draft = computed(() => draftMarker.value);
 
     <!-- Actions -->
     <div class="flex gap-2 pt-0.5">
-      <PrimaryButton :loading="isSaving" class="flex-1" @click="saveDraft">
+      <PrimaryButton
+        :loading="isSaving"
+        :disabled="!isDirty"
+        :class="['flex-1', isShaking ? 'btn-shake' : '']"
+        @click="saveDraft"
+      >
         <template #icon>
           <IconSave />
         </template>
@@ -86,3 +99,16 @@ const draft = computed(() => draftMarker.value);
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  15%       { transform: translateX(-4px); }
+  35%       { transform: translateX(4px); }
+  55%       { transform: translateX(-3px); }
+  75%       { transform: translateX(3px); }
+}
+.btn-shake {
+  animation: shake 0.5s ease-in-out;
+}
+</style>

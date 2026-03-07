@@ -1,4 +1,4 @@
-import { ref, readonly } from 'vue';
+import { ref, readonly, computed } from 'vue';
 import type { MarkerData } from '@/types';
 import { useI18n } from 'vue-i18n';
 import { useToast } from '@/composables/useToast';
@@ -26,6 +26,8 @@ const _initDraft = (): MarkerData => {
 
 const draftMarker = ref<MarkerData>(_initDraft());
 const draftIsNew = ref(true);
+const draftSnapshot = ref(JSON.stringify(draftMarker.value));
+const isDirty = computed(() => JSON.stringify(draftMarker.value) !== draftSnapshot.value);
 
 export function useMarkers() {
   const { t } = useI18n();
@@ -80,6 +82,7 @@ export function useMarkers() {
     };
     draftIsNew.value = true;
     activeMarkerId.value = null;
+    draftSnapshot.value = JSON.stringify(draftMarker.value);
   }
 
   function openEditMarker(id: string) {
@@ -87,6 +90,7 @@ export function useMarkers() {
     if (!found) return;
     draftMarker.value = { ...found };
     draftIsNew.value = false;
+    draftSnapshot.value = JSON.stringify(draftMarker.value);
     centerOnMarker(found);
   }
 
@@ -132,6 +136,7 @@ export function useMarkers() {
     mapHeight,
     draftMarker,
     draftIsNew,
+    isDirty,
     openNewMarker,
     openEditMarker,
     cancelDraft,
