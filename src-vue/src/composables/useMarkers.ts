@@ -8,6 +8,7 @@ const markers = ref<MarkerData[]>(initialData);
 const isSaving = ref(false);
 const activeMarkerId = ref<string | null>(null);
 const mapCenterTrigger = ref<{ lat: string; lng: string } | null>(null);
+const mapFlyTrigger = ref<{ lat: number; lng: number; zoom?: number } | null>(null);
 const zoom = ref(window.wpData?.zoom || 10);
 const mapStyle = ref(window.wpData?.mapStyle || 'osm');
 const mapTitle = ref(window.wpData?.mapTitle || '');
@@ -124,6 +125,7 @@ export function useMarkers() {
     activeMarkerId,
     mapCenterTrigger,
     centerOnMarker,
+    mapFlyTrigger,
     zoom,
     mapStyle,
     mapTitle,

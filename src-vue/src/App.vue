@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import AdminSettings from './components/settings/AdminSettings.vue';
 import LMap from './components/map/LMap.vue';
 import MapTitle from './components/map/MapTitle.vue';
+import MapSearch from './components/map/MapSearch.vue';
 import ToastNotification from './components/ui/ToastNotification.vue';
 import { useMarkers } from '@/composables/useMarkers';
 
@@ -26,6 +27,7 @@ const { mapStyle, mapHeight } = useMarkers();
     <AdminSettings v-if="canEdit" />
     <div class="flex flex-col flex-1 gap-3 min-w-0">
       <MapTitle :can-edit="canEdit" />
+      <MapSearch />
       <LMap :draggable="canEdit" :map-style="mapStyle" :map-height="mapHeight" />
     </div>
     <ToastNotification />

@@ -22,6 +22,7 @@ const {
   markers,
   activeMarkerId,
   mapCenterTrigger,
+  mapFlyTrigger,
   zoom,
   draftMarker,
   draftIsNew,
@@ -247,6 +248,11 @@ watch(() => props.mapStyle, updateMapStyle);
 
 watch(() => props.mapHeight, () => {
   nextTick(() => map?.invalidateSize());
+});
+
+watch(mapFlyTrigger, (coords) => {
+  if (!coords || !map) return;
+  map.flyTo([coords.lat, coords.lng], coords.zoom ?? 15, { animate: true, duration: 0.5 });
 });
 </script>
 

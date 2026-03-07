@@ -35,6 +35,7 @@
     "map_title_placeholder": "Заголовок карты...",
     "title_saved": "Заголовок сохранён",
     "map_height": "Высота карты",
-    "height_saved": "Высота сохранена"
+    "height_saved": "Высота сохранена",
+    "search_placeholder": "Поиск адреса..."
   }
 }
