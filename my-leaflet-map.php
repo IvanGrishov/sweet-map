@@ -188,7 +188,7 @@ function mlm_render_page() {
       <!-- Переключатель карт -->
       <form method="GET" style="display:flex;align-items:center;gap:8px">
         <input type="hidden" name="page" value="mlm-settings-page">
-        <label style="font-weight:600;font-size:13px"><?= __('Карта:', 'map') ?></label>
+        <label style="font-weight:600;font-size:13px"><?= __('Map:', 'map') ?></label>
         <select name="map_id" class="regular-text" style="height:30px" onchange="this.form.submit()">
           <?php foreach ($map_ids as $id): ?>
             <option value="<?= esc_attr($id) ?>" <?= $id === $map_id ? 'selected' : '' ?>>
@@ -207,7 +207,7 @@ function mlm_render_page() {
         <input type="hidden" name="create_map" value="1">
         <input type="text" name="new_map_id" placeholder="my-new-map"
           class="regular-text" style="height:28px;width:140px" pattern="[a-z0-9\-]+" title="Только a-z, 0-9, дефис">
-        <button type="submit" class="button button-secondary">+ Новая карта</button>
+        <button type="submit" class="button button-secondary">+ <?= __('New map', 'map') ?></button>
       </form>
     </div>
 

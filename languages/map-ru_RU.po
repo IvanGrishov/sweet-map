@@ -9,4 +9,8 @@ msgstr ""
 msgid "Vue Map"
 msgstr "Карта Vue"
 
+msgid "Map:"
+msgstr "Карта:"
 
+msgid "New map"
+msgstr "Новая карта"
