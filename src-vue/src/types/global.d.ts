@@ -7,6 +7,7 @@ declare global {
     wpData?: {
       rest_url: string;
       nonce: string;
+      map_id: string;
       is_admin: boolean;
       can_edit: boolean | number | string;
       coords: MarkerData[];

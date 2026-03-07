@@ -13,13 +13,14 @@ const zoom = ref(window.wpData?.zoom || 10);
 const mapStyle = ref(window.wpData?.mapStyle || 'osm');
 const mapTitle = ref(window.wpData?.mapTitle || '');
 const mapHeight = ref(window.wpData?.mapHeight || 500);
+const mapId = window.wpData?.map_id || 'default';
 
 const _initDraft = (): MarkerData => {
   const base = (window.wpData?.coords as MarkerData[] | undefined)?.at(-1);
   return {
     id: crypto.randomUUID(),
-    lat: base ? (Number(base.lat) + 0.002).toFixed(6) : '55.7512',
-    lng: base ? (Number(base.lng) + 0.002).toFixed(6) : '37.6184',
+    lat: base ? (Number(base.lat)).toFixed(6) : '55.7512',
+    lng: base ? (Number(base.lng) + 0.08).toFixed(6) : '37.6184',
     title: ''
   };
 };
@@ -57,6 +58,7 @@ export function useMarkers() {
           'X-WP-Nonce': window.wpData.nonce
         },
         body: JSON.stringify({
+          map_id: mapId,
           markers: markers.value,
           zoom: Number(zoom.value),
           map_style: mapStyle.value,
@@ -76,8 +78,8 @@ export function useMarkers() {
     const base = markers.value.at(-1);
     draftMarker.value = {
       id: crypto.randomUUID(),
-      lat: base ? (Number(base.lat) + 0.002).toFixed(6) : '55.7512',
-      lng: base ? (Number(base.lng) + 0.002).toFixed(6) : '37.6184',
+      lat: base ? (Number(base.lat)).toFixed(6) : '55.7512',
+      lng: base ? (Number(base.lng) + 0.08).toFixed(6) : '37.6184',
       title: ''
     };
     draftIsNew.value = true;

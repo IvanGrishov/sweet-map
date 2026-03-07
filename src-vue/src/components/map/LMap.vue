@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import { useI18n } from 'vue-i18n';
 import { useMarkers } from '@/composables/useMarkers';
+import { useToast } from '@/composables/useToast';
 import { MAP_LAYERS } from '@/constants';
 import { MarkerData } from '@/types';
 
@@ -34,6 +36,7 @@ const mapContainer = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;
 let clusterGroup: L.MarkerClusterGroup | null = null;
 const leafletMarkers = new Map<string, L.Marker>();
+const markerCount = ref(0); // реактивный счётчик для v-if кнопки fit
 let draftLeafletMarker: L.Marker | null = null;
 
 const makePopupHtml = (data: MarkerData) => {
@@ -157,6 +160,7 @@ const syncMarkers = () => {
       }
     }
   });
+  markerCount.value = leafletMarkers.size;
 };
 
 onMounted(async () => {
@@ -280,6 +284,22 @@ const updateMapStyle = (style: string) => {
 
 watch(() => props.mapStyle, updateMapStyle);
 
+const toast = useToast();
+
+const locateUser = () => {
+  if (!map) return;
+  map.locate({ setView: true, maxZoom: 15 });
+  map.once('locationerror', () => toast.show(t('admin.location_error'), 3000));
+};
+
+const { t } = useI18n();
+
+const fitAllMarkers = () => {
+  if (!map || leafletMarkers.size === 0) return;
+  const latlngs = [...leafletMarkers.values()].map(m => m.getLatLng());
+  map.fitBounds(L.latLngBounds(latlngs), { padding: [40, 40], maxZoom: 15 });
+};
+
 watch(() => props.mapHeight, () => {
   nextTick(() => map?.invalidateSize());
 });
@@ -297,17 +317,64 @@ watch(mapFlyTrigger, (coords) => {
   >
     <div ref="mapContainer" class="h-full w-full"></div>
 
+    <!-- Hint -->
     <div v-if="draggable" class="absolute bottom-4 left-4 z-1000 pointer-events-none">
-      <div
-        class="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 text-[0.6875rem] font-bold text-slate-600 shadow-sm uppercase tracking-wider"
-      >
+      <div class="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 text-[0.6875rem] font-bold text-slate-600 shadow-sm uppercase tracking-wider">
         {{ $t('admin.click_map_hint') }}
       </div>
+    </div>
+
+    <!-- Map control buttons -->
+    <div class="absolute bottom-4 right-4 z-1000 flex flex-col gap-2">
+      <!-- Fit all markers -->
+      <button
+        v-if="markerCount > 0"
+        class="mlm-map-btn"
+        :title="$t('admin.fit_markers')"
+        @click="fitAllMarkers"
+      >
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+        </svg>
+      </button>
+
+      <!-- My location -->
+      <button
+        class="mlm-map-btn"
+        :title="$t('admin.my_location')"
+        @click="locateUser"
+      >
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+          <circle cx="12" cy="12" r="9" stroke-dasharray="2 4"/>
+        </svg>
+      </button>
     </div>
   </div>
 </template>
 
 <style scoped>
+.mlm-map-btn {
+  width: 38px;
+  height: 38px;
+  background: #4f46e5;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: all 0.15s;
+}
+.mlm-map-btn:hover {
+  background: #4338ca;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.5);
+}
+
 :deep(.mlm-custom-marker) {
   background: transparent !important;
   border: none !important;
