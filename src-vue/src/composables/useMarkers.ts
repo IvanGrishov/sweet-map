@@ -1,6 +1,7 @@
 import { ref, readonly } from 'vue';
 import type { MarkerData } from '@/types';
 import { useI18n } from 'vue-i18n';
+import { useToast } from '@/composables/useToast';
 
 const initialData = window.wpData?.coords || [];
 const markers = ref<MarkerData[]>(initialData);
@@ -25,6 +26,7 @@ const draftIsNew = ref(true);
 
 export function useMarkers() {
   const { t } = useI18n();
+  const toast = useToast();
 
   const removeMarker = (id: string) => {
     markers.value = markers.value.filter((m) => m.id !== id);
@@ -97,6 +99,7 @@ export function useMarkers() {
     }
     openNewMarker();
     await saveMarkers();
+    toast.show(t('admin.marker_saved'));
   }
 
   async function deleteDraftMarker() {
@@ -106,6 +109,7 @@ export function useMarkers() {
     if (activeMarkerId.value === id) activeMarkerId.value = null;
     openNewMarker();
     await saveMarkers();
+    toast.show(t('admin.marker_deleted'));
   }
 
   return {

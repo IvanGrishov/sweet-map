@@ -19,6 +19,8 @@
     "map_zoom": "Default zoom",
     "zoom_saved": "Default zoom saved",
     "style_saved": "Map style saved",
+    "marker_saved": "Marker saved",
+    "marker_deleted": "Marker deleted",
     "zoom_min": "Мин",
     "zoom_max": "Макс",
     "map_style": "Map Style",
