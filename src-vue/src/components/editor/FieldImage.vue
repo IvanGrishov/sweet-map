@@ -21,7 +21,7 @@ const onFileChange = (e: Event) => {
 
 <template>
   <div class="flex flex-col gap-1.5">
-    <span class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+    <span class="text-sm font-semibold uppercase tracking-widest text-slate-700">
       {{ t('admin.image') }}
     </span>
 
@@ -50,7 +50,7 @@ const onFileChange = (e: Event) => {
     <button
       v-else
       type="button"
-      class="flex items-center justify-center gap-2 w-full py-3 rounded-lg border-2 border-dashed border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-400 hover:text-indigo-500 text-xs font-medium transition-all"
+      class="flex items-center justify-center gap-2 w-full py-3 rounded-lg border-2 border-dashed border-slate-300 hover:border-indigo-400 hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 text-sm font-medium transition-all"
       @click="fileInput?.click()"
     >
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

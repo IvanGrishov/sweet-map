@@ -44,6 +44,12 @@
     "replace_image": "Replace",
     "image_size_warning": "File is large ({size} KB). It will be stored as base64.",
     "link_url": "Link",
-    "link_url_placeholder": "https://example.com"
+    "link_url_placeholder": "https://example.com",
+    "popup_content": "Popup",
+    "position": "Position",
+    "show_search": "Search on site",
+    "show_search_on": "Visitors can search for addresses on the map",
+    "show_search_off": "Search is hidden for visitors",
+    "search_visibility_saved": "Search visibility saved"
   }
 }

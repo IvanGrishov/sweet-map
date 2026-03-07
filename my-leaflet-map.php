@@ -19,23 +19,38 @@ add_action('init', function() {
  * Обработка создания новой карты (до вывода HTML)
  */
 add_action('admin_init', function () {
-  if (
-    !isset($_GET['page'], $_GET['create_map'], $_GET['new_map_id'])
-    || $_GET['page'] !== 'mlm-settings-page'
-    || !current_user_can('manage_options')
-  ) return;
+  if ($_GET['page'] ?? '' !== 'mlm-settings-page' || !current_user_can('manage_options')) return;
 
-  $new_id  = sanitize_key($_GET['new_map_id']);
-  if (!$new_id) return;
-
-  $map_ids = get_option('mlm_map_ids', ['default']);
-  if (!in_array($new_id, $map_ids)) {
-    $map_ids[] = $new_id;
-    update_option('mlm_map_ids', $map_ids);
+  // Создание новой карты
+  if (isset($_GET['create_map'], $_GET['new_map_id'])) {
+    $new_id = sanitize_key($_GET['new_map_id']);
+    if (!$new_id) return;
+    $map_ids = get_option('mlm_map_ids', ['default']);
+    if (!in_array($new_id, $map_ids)) {
+      $map_ids[] = $new_id;
+      update_option('mlm_map_ids', $map_ids);
+    }
+    wp_redirect(admin_url('admin.php?page=mlm-settings-page&map_id=' . urlencode($new_id)));
+    exit;
   }
 
-  wp_redirect(admin_url('admin.php?page=mlm-settings-page&map_id=' . urlencode($new_id)));
-  exit;
+  // Удаление карты
+  if (isset($_GET['delete_map'], $_GET['del_map_id'])) {
+    $del_id = sanitize_key($_GET['del_map_id']);
+    if (!$del_id || $del_id === 'default') return;
+    $s = mlm_suffix($del_id);
+    delete_option('mlm_coords'      . $s);
+    delete_option('mlm_map_zoom'    . $s);
+    delete_option('mlm_map_style'   . $s);
+    delete_option('mlm_map_title'   . $s);
+    delete_option('mlm_map_height'  . $s);
+    delete_option('mlm_show_search' . $s);
+    $map_ids = get_option('mlm_map_ids', ['default']);
+    $map_ids = array_values(array_filter($map_ids, fn($id) => $id !== $del_id));
+    update_option('mlm_map_ids', $map_ids);
+    wp_redirect(admin_url('admin.php?page=mlm-settings-page&map_id=default'));
+    exit;
+  }
 });
 
 add_action('admin_menu', function () {
@@ -82,7 +97,8 @@ function mlm_enqueue_assets($map_id = 'default') {
     'zoom'      => (int) get_option('mlm_map_zoom'   . $s, 13),
     'mapStyle'  => get_option('mlm_map_style'  . $s, 'osm'),
     'mapTitle'  => get_option('mlm_map_title'  . $s, ''),
-    'mapHeight' => (int) get_option('mlm_map_height' . $s, 500),
+    'mapHeight'  => (int) get_option('mlm_map_height'  . $s, 500),
+    'showSearch' => (bool) get_option('mlm_show_search' . $s, true),
   ));
 }
 
@@ -159,9 +175,10 @@ function mlm_handle_save_markers($request) {
   update_option('mlm_coords'     . $s, $sanitized);
   update_option('mlm_map_zoom'   . $s, intval($zoom));
 
-  if (isset($params['map_style']))  update_option('mlm_map_style'  . $s, sanitize_text_field($params['map_style']));
-  if (isset($params['map_title']))  update_option('mlm_map_title'  . $s, sanitize_text_field($params['map_title']));
-  if (isset($params['map_height'])) update_option('mlm_map_height' . $s, intval($params['map_height']));
+  if (isset($params['map_style']))   update_option('mlm_map_style'   . $s, sanitize_text_field($params['map_style']));
+  if (isset($params['map_title']))   update_option('mlm_map_title'   . $s, sanitize_text_field($params['map_title']));
+  if (isset($params['map_height']))  update_option('mlm_map_height'  . $s, intval($params['map_height']));
+  if (isset($params['show_search'])) update_option('mlm_show_search' . $s, (bool) $params['show_search']);
 
   // Регистрируем map_id в общем списке
   $map_ids = get_option('mlm_map_ids', ['default']);
@@ -209,6 +226,15 @@ function mlm_render_page() {
           class="regular-text" style="height:28px;width:140px" pattern="[a-z0-9\-]+" title="Только a-z, 0-9, дефис">
         <button type="submit" class="button button-secondary">+ <?= __('New map', 'map') ?></button>
       </form>
+
+      <!-- Удалить карту (только не-default) -->
+      <?php if ($map_id !== 'default'): ?>
+        <a
+          href="<?= esc_url(admin_url('admin.php?page=mlm-settings-page&delete_map=1&del_map_id=' . urlencode($map_id))) ?>"
+          class="button button-link-delete"
+          onclick="return confirm('<?= esc_attr(sprintf(__('Delete map "%s" and all its markers? This cannot be undone.', 'map'), $map_id)) ?>')"
+        ><?= __('Delete map', 'map') ?></a>
+      <?php endif; ?>
     </div>
 
     <div id="mlm-map-admin-root">

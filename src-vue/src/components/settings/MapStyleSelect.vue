@@ -36,8 +36,8 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside));
 </script>
 
 <template>
-  <div ref="wrapper" class="pt-4 border-t border-slate-100">
-    <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-400 block mb-2">
+  <div ref="wrapper" class="pt-5 border-t border-slate-200">
+    <label class="text-sm font-semibold uppercase tracking-widest text-slate-700 block mb-2">
       {{ $t('admin.map_style') }}
     </label>
 

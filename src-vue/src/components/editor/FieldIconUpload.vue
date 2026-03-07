@@ -31,7 +31,7 @@ const remove = () => {
     <img :src="model" class="w-7 h-7 object-contain rounded-md border border-slate-200 bg-white" />
     <button
       type="button"
-      class="text-xs text-red-400 hover:text-red-600 font-medium transition-colors"
+      class="text-sm text-red-500 hover:text-red-700 font-medium transition-colors"
       @click="remove"
     >
       {{ t('admin.remove_icon') }}
@@ -42,7 +42,7 @@ const remove = () => {
   <template v-else>
     <button
       type="button"
-      class="text-xs text-indigo-500 hover:text-indigo-700 font-medium transition-colors"
+      class="text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
       @click="fileInput?.click()"
     >
       {{ t('admin.upload_icon') }}

@@ -45,6 +45,12 @@
     "replace_image": "Заменить",
     "image_size_warning": "Файл большой ({size} КБ). Будет сохранён как base64.",
     "link_url": "Ссылка",
-    "link_url_placeholder": "https://example.com"
+    "link_url_placeholder": "https://example.com",
+    "popup_content": "Попап",
+    "position": "Позиция",
+    "show_search": "Поиск на сайте",
+    "show_search_on": "Посетители могут искать адреса на карте",
+    "show_search_off": "Поиск скрыт для посетителей",
+    "search_visibility_saved": "Видимость поиска сохранена"
   }
 }

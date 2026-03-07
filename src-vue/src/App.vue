@@ -17,7 +17,7 @@ const canEdit = computed(() => {
   return String(val) === '1' || String(val) === 'true';
 });
 
-const { mapStyle, mapHeight } = useMarkers();
+const { mapStyle, mapHeight, showSearch } = useMarkers();
 </script>
 
 <template>
@@ -28,7 +28,7 @@ const { mapStyle, mapHeight } = useMarkers();
     <div class="flex flex-col flex-1 gap-3 min-w-0 md:sticky md:top-8">
       <div class="mlm-search-header flex flex-col gap-2">
         <MapTitle :can-edit="canEdit" />
-        <MapSearch :can-edit="canEdit" />
+        <MapSearch v-if="canEdit || showSearch" :can-edit="canEdit" />
       </div>
       <LMap :draggable="canEdit" :map-style="mapStyle" :map-height="mapHeight" />
     </div>

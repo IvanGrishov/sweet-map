@@ -27,51 +27,79 @@ watch(isDirty, (val, oldVal) => {
     setTimeout(() => { isShaking.value = false; }, 600);
   }
 });
+
+const onEnter = (e: KeyboardEvent) => {
+  if ((e.target as HTMLElement).tagName === 'TEXTAREA') return;
+  if (!isDirty.value || isSaving.value) return;
+  saveDraft();
+};
 </script>
 
 <template>
-  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col gap-3">
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-4" @keydown.enter="onEnter">
     <!-- Mode label -->
-    <p class="text-[11px] font-semibold uppercase tracking-widest text-indigo-500 m-0 leading-none">
+    <p class="text-xs font-semibold uppercase tracking-widest text-indigo-500 m-0 leading-none">
       {{ draftIsNew ? t('admin.add_marker_title') : t('admin.edit_marker_title') }}
     </p>
 
-    <FieldTitle v-model="draft.title" />
-
-    <FieldDescription v-model="draft.description" />
+    <!-- Popup content group -->
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col gap-3.5">
+      <div class="flex items-center gap-2 text-slate-600">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest">{{ t('admin.popup_content') }}</span>
+      </div>
+      <FieldTitle v-model="draft.title" />
+      <FieldDescription v-model="draft.description" />
+      <FieldImage v-model="draft.image" />
+      <FieldLink v-model="draft.link" />
+    </div>
 
     <!-- Lat / Lng -->
-    <div class="grid grid-cols-2 gap-2">
-      <div class="flex items-center gap-1.5">
-        <span class="text-[11px] font-bold text-slate-400 w-7 uppercase tracking-wider shrink-0">Lat</span>
-        <input
-          v-model="draft.lat"
-          type="text"
-          class="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-xs font-mono text-slate-600 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 focus:bg-white focus:outline-none transition-all"
-        />
+    <div class="flex flex-col gap-2 pt-4 border-t border-slate-100">
+      <div class="flex items-center gap-2 text-slate-600">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 10c0 5.25 7 12 7 12s7-6.75 7-12c0-4.87-3.13-8-7-8z"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest">{{ t('admin.position') }}</span>
       </div>
-      <div class="flex items-center gap-1.5">
-        <span class="text-[11px] font-bold text-slate-400 w-7 uppercase tracking-wider shrink-0">Lng</span>
-        <input
-          v-model="draft.lng"
-          type="text"
-          class="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-xs font-mono text-slate-600 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 focus:bg-white focus:outline-none transition-all"
-        />
+      <div class="grid grid-cols-2 gap-2.5">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-slate-600 w-7 uppercase tracking-wider shrink-0">Lat</span>
+          <input
+            v-model="draft.lat"
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-xs font-mono text-slate-600 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 focus:bg-white focus:outline-none transition-all"
+          />
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-slate-600 w-7 uppercase tracking-wider shrink-0">Lng</span>
+          <input
+            v-model="draft.lng"
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-xs font-mono text-slate-600 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 focus:bg-white focus:outline-none transition-all"
+          />
+        </div>
       </div>
     </div>
 
-    <FieldImage v-model="draft.image" />
-
-    <FieldLink v-model="draft.link" />
-
     <!-- Appearance -->
-    <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-3">
-      <FieldColorPicker v-if="!draft.icon" v-model="draft.color" />
-      <FieldIconUpload v-model="draft.icon" />
+    <div class="flex flex-col gap-2 pt-4 border-t border-slate-100">
+      <div class="flex items-center gap-2 text-slate-600">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest">{{ t('admin.marker_appearance') }}</span>
+      </div>
+      <div class="flex items-center justify-between gap-3">
+        <FieldColorPicker v-if="!draft.icon" v-model="draft.color" />
+        <FieldIconUpload v-model="draft.icon" />
+      </div>
     </div>
 
     <!-- Actions -->
-    <div class="flex gap-2 pt-0.5">
+    <div class="flex gap-2.5 pt-4 border-t border-slate-100">
       <PrimaryButton
         :loading="isSaving"
         :disabled="!isDirty"

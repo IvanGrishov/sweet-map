@@ -22,12 +22,12 @@ watch(mapHeight, () => {
 </script>
 
 <template>
-  <div class="pt-4 border-t border-slate-100">
+  <div class="pt-5 border-t border-slate-200">
     <div class="flex justify-between items-center mb-3">
-      <span class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+      <span class="text-sm font-semibold uppercase tracking-widest text-slate-700">
         {{ t('admin.map_height') }}
       </span>
-      <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md tabular-nums">
+      <span class="text-base font-bold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-md tabular-nums">
         {{ mapHeight }}px
       </span>
     </div>
@@ -41,7 +41,7 @@ watch(mapHeight, () => {
       class="w-full h-1.5 bg-slate-200 rounded-full appearance-none cursor-pointer accent-indigo-600"
     />
 
-    <div class="flex justify-between text-[10px] text-slate-400 mt-1.5 font-medium">
+    <div class="flex justify-between text-sm text-slate-500 mt-2 font-medium">
       <span>{{ HEIGHT_CONFIG.MIN }}px</span>
       <span>{{ HEIGHT_CONFIG.MAX }}px</span>
     </div>

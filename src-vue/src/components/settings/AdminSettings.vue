@@ -8,6 +8,7 @@ import DevBadge from '@/components/ui/DevBadge.vue';
 import MapZoomControl from '@/components/settings/MapZoomControl.vue';
 import MapStyleSelect from '@/components/settings/MapStyleSelect.vue';
 import MapHeightControl from '@/components/settings/MapHeightControl.vue';
+import ShowSearchToggle from '@/components/settings/ShowSearchToggle.vue';
 
 const { t } = useI18n();
 
@@ -26,7 +27,7 @@ watch(activeMarkerId, async (newId) => {
 </script>
 
 <template>
-  <div class="mlm-sidebar w-80 flex flex-col gap-0 relative">
+  <div class="mlm-sidebar w-96 flex flex-col gap-0 relative">
     <!-- Editor -->
     <div>
       <MarkerEditor />
@@ -37,7 +38,7 @@ watch(activeMarkerId, async (newId) => {
       <!-- Section header -->
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-[11px] font-semibold uppercase tracking-widest text-slate-400 m-0 leading-none mb-0.5">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-slate-600 m-0 leading-none mb-0.5">
             {{ t('admin.total') }} {{ markers.length }}
           </p>
           <h3 class="m-0 text-slate-800 text-lg font-black tracking-tight leading-tight">
@@ -53,7 +54,7 @@ watch(activeMarkerId, async (newId) => {
         class="overflow-y-auto custom-scrollbar flex flex-col gap-1 max-h-56"
       >
         <MarkerItem
-          v-for="marker in markers"
+          v-for="marker in [...markers].reverse()"
           :key="marker.id"
           :marker="marker"
           :is-active="activeMarkerId === marker.id"
@@ -61,7 +62,7 @@ watch(activeMarkerId, async (newId) => {
           @select="openEditMarker"
         />
 
-        <div v-if="markers.length === 0" class="text-center text-sm text-slate-400 italic py-6">
+        <div v-if="markers.length === 0" class="text-center text-sm text-slate-600 italic py-6">
           {{ t('admin.no_markers') }}
         </div>
       </div>
@@ -70,6 +71,7 @@ watch(activeMarkerId, async (newId) => {
       <MapZoomControl />
       <MapHeightControl />
       <MapStyleSelect v-model="mapStyle" />
+      <ShowSearchToggle />
 
       <DevBadge v-if="isDev" />
     </div>
@@ -78,13 +80,17 @@ watch(activeMarkerId, async (newId) => {
 
 <style scoped>
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+  background: #f1f5f9;
+  border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: #94a3b8;
   border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
 }
 </style>

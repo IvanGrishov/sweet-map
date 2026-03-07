@@ -15,6 +15,7 @@ declare global {
       mapStyle: string;
       mapTitle: string;
       mapHeight: number;
+      showSearch: boolean;
     };
   }
 }

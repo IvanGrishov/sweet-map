@@ -13,6 +13,6 @@ const model = defineModel<string>();
       class="w-7 h-7 rounded-md cursor-pointer border border-slate-200 bg-white p-0.5"
       @input="model = ($event.target as HTMLInputElement).value"
     />
-    <span class="text-xs text-slate-500 font-medium">{{ t('admin.pin_color') }}</span>
+    <span class="text-sm text-slate-700 font-medium">{{ t('admin.pin_color') }}</span>
   </label>
 </template>

@@ -14,3 +14,9 @@ msgstr "Карта:"
 
 msgid "New map"
 msgstr "Новая карта"
+
+msgid "Delete map"
+msgstr "Удалить карту"
+
+msgid "Delete map \"%s\" and all its markers? This cannot be undone."
+msgstr "Удалить карту «%s» и все её маркеры? Это действие нельзя отменить."
