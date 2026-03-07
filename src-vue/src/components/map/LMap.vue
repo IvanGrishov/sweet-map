@@ -293,7 +293,7 @@ watch(mapFlyTrigger, (coords) => {
 <template>
   <div
     :style="{ height: `${props.mapHeight}px` }"
-    class="rounded-2xl overflow-hidden border border-slate-200 shadow-xl relative z-10 bg-slate-50 sticky top-15"
+    class="rounded-2xl overflow-hidden border border-slate-200 shadow-xl relative z-10 bg-slate-50"
   >
     <div ref="mapContainer" class="h-full w-full"></div>
 

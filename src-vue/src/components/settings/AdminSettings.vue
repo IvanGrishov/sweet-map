@@ -27,8 +27,8 @@ watch(activeMarkerId, async (newId) => {
 
 <template>
   <div class="mlm-sidebar w-80 flex flex-col gap-0 relative">
-    <!-- Editor — sticky at top -->
-    <div class="sticky top-11 z-20">
+    <!-- Editor -->
+    <div>
       <MarkerEditor />
     </div>
 
