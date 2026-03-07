@@ -12,6 +12,7 @@ import { MarkerData } from '@/types';
 interface Props {
   draggable: boolean;
   mapStyle: string;
+  mapHeight: number;
 }
 
 const props = defineProps<Props>();
@@ -243,11 +244,16 @@ const updateMapStyle = (style: string) => {
 };
 
 watch(() => props.mapStyle, updateMapStyle);
+
+watch(() => props.mapHeight, () => {
+  nextTick(() => map?.invalidateSize());
+});
 </script>
 
 <template>
   <div
-    class="flex-1 max-h-125 rounded-2xl overflow-hidden border border-slate-200 shadow-xl relative z-10 bg-slate-50 sticky top-15"
+    :style="{ height: `${props.mapHeight}px` }"
+    class="rounded-2xl overflow-hidden border border-slate-200 shadow-xl relative z-10 bg-slate-50 sticky top-15"
   >
     <div ref="mapContainer" class="h-full w-full"></div>
 

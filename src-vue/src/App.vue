@@ -16,7 +16,7 @@ const canEdit = computed(() => {
   return String(val) === '1' || String(val) === 'true';
 });
 
-const { mapStyle } = useMarkers();
+const { mapStyle, mapHeight } = useMarkers();
 </script>
 
 <template>
@@ -26,7 +26,7 @@ const { mapStyle } = useMarkers();
     <AdminSettings v-if="canEdit" />
     <div class="flex flex-col flex-1 gap-3 min-w-0">
       <MapTitle :can-edit="canEdit" />
-      <LMap :draggable="canEdit" :map-style="mapStyle" />
+      <LMap :draggable="canEdit" :map-style="mapStyle" :map-height="mapHeight" />
     </div>
     <ToastNotification />
   </div>

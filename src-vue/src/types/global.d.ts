@@ -13,6 +13,7 @@ declare global {
       zoom: number;
       mapStyle: string;
       mapTitle: string;
+      mapHeight: number;
     };
   }
 }

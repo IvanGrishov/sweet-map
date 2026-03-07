@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n';
 import DevBadge from '@/components/ui/DevBadge.vue';
 import MapZoomControl from '@/components/settings/MapZoomControl.vue';
 import MapStyleSelect from '@/components/settings/MapStyleSelect.vue';
+import MapHeightControl from '@/components/settings/MapHeightControl.vue';
 
 const { t } = useI18n();
 
@@ -67,6 +68,7 @@ watch(activeMarkerId, async (newId) => {
 
       <!-- Map settings -->
       <MapZoomControl />
+      <MapHeightControl />
       <MapStyleSelect v-model="mapStyle" />
 
       <DevBadge v-if="isDev" />

@@ -32,6 +32,8 @@
     "remove_icon": "Remove icon",
     "icon_size_warning": "File is large ({size} KB). It will be stored as base64.",
     "map_title_placeholder": "Map title...",
-    "title_saved": "Title saved"
+    "title_saved": "Title saved",
+    "map_height": "Map height",
+    "height_saved": "Height saved"
   }
 }

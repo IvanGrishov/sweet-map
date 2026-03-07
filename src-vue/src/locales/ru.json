@@ -33,6 +33,8 @@
     "remove_icon": "Удалить иконку",
     "icon_size_warning": "Файл большой ({size} КБ). Будет сохранён как base64.",
     "map_title_placeholder": "Заголовок карты...",
-    "title_saved": "Заголовок сохранён"
+    "title_saved": "Заголовок сохранён",
+    "map_height": "Высота карты",
+    "height_saved": "Высота сохранена"
   }
 }
