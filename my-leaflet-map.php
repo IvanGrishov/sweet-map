@@ -54,6 +54,7 @@ function mlm_enqueue_assets() {
     'can_edit' => is_admin() && current_user_can('manage_options'),
     'zoom' => (int) get_option('mlm_map_zoom', 13),
     'mapStyle' => get_option('mlm_map_style', 'osm'),
+    'mapTitle' => get_option('mlm_map_title', ''),
   ));
 }
 
@@ -130,6 +131,10 @@ function mlm_handle_save_markers($request) {
 
   if (isset($params['map_style'])) {
     update_option('mlm_map_style', sanitize_text_field($params['map_style']));
+  }
+
+  if (isset($params['map_title'])) {
+    update_option('mlm_map_title', sanitize_text_field($params['map_title']));
   }
 
   return new WP_REST_Response(array(

@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import AdminSettings from './components/settings/AdminSettings.vue';
 import LMap from './components/map/LMap.vue';
+import MapTitle from './components/map/MapTitle.vue';
 import ToastNotification from './components/ui/ToastNotification.vue';
 import { useMarkers } from '@/composables/useMarkers';
 
@@ -23,7 +24,10 @@ const { mapStyle } = useMarkers();
     class="mlm-plugin-root flex flex-col md:flex-row gap-5 p-4 pt-8 font-sans min-h-150 relative"
   >
     <AdminSettings v-if="canEdit" />
-    <LMap :draggable="canEdit" :map-style="mapStyle" />
+    <div class="flex flex-col flex-1 gap-3 min-w-0">
+      <MapTitle :can-edit="canEdit" />
+      <LMap :draggable="canEdit" :map-style="mapStyle" />
+    </div>
     <ToastNotification />
   </div>
 </template>
