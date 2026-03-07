@@ -121,7 +121,7 @@ function mlm_handle_save_markers($request) {
       'description' => sanitize_textarea_field($marker['description'] ?? ''),
       'color'       => sanitize_hex_color($marker['color'] ?? '') ?? '',
       'icon'        => sanitize_text_field($marker['icon'] ?? ''),
-      'image'       => esc_url_raw($marker['image'] ?? ''),
+      'image'       => sanitize_text_field($marker['image'] ?? ''),
       'link'        => esc_url_raw($marker['link'] ?? ''),
     );
   }

@@ -37,8 +37,10 @@
     "map_height": "Высота карты",
     "height_saved": "Высота сохранена",
     "search_placeholder": "Поиск адреса...",
-    "image_url": "Изображение",
-    "image_url_placeholder": "https://example.com/image.jpg",
+    "image": "Изображение",
+    "upload_image": "Загрузить изображение",
+    "replace_image": "Заменить",
+    "image_size_warning": "Файл большой ({size} КБ). Будет сохранён как base64.",
     "link_url": "Ссылка",
     "link_url_placeholder": "https://example.com"
   }

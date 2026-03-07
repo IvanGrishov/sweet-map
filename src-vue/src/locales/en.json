@@ -36,8 +36,10 @@
     "map_height": "Map height",
     "height_saved": "Height saved",
     "search_placeholder": "Search address...",
-    "image_url": "Image",
-    "image_url_placeholder": "https://example.com/image.jpg",
+    "image": "Image",
+    "upload_image": "Upload image",
+    "replace_image": "Replace",
+    "image_size_warning": "File is large ({size} KB). It will be stored as base64.",
     "link_url": "Link",
     "link_url_placeholder": "https://example.com"
   }
