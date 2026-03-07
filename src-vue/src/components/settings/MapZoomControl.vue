@@ -1,16 +1,31 @@
 <script setup lang="ts">
+import { watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useMarkers } from '@/composables/useMarkers';
+import { useToast } from '@/composables/useToast';
 
-const { zoom } = useMarkers();
+const { t } = useI18n();
+const { zoom, saveMarkers } = useMarkers();
+const toast = useToast();
 
 const ZOOM_CONFIG = { MIN: 1, MAX: 18, STEP: 1 };
+
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+
+watch(zoom, () => {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    await saveMarkers();
+    toast.show(t('admin.zoom_saved'));
+  }, 700);
+});
 </script>
 
 <template>
   <div class="pt-4 border-t border-slate-100">
     <div class="flex justify-between items-center mb-3">
       <span class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-        {{ $t('admin.map_zoom') }}
+        {{ t('admin.map_zoom') }}
       </span>
       <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md tabular-nums">
         {{ zoom }}

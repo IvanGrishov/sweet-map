@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import AdminSettings from './components/settings/AdminSettings.vue';
 import LMap from './components/map/LMap.vue';
+import ToastNotification from './components/ui/ToastNotification.vue';
 import { useMarkers } from '@/composables/useMarkers';
 
 const isDev = import.meta.env.DEV;
@@ -23,5 +24,6 @@ const { mapStyle } = useMarkers();
   >
     <AdminSettings v-if="canEdit" />
     <LMap :draggable="canEdit" :map-style="mapStyle" />
+    <ToastNotification />
   </div>
 </template>
