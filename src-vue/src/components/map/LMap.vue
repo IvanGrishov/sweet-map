@@ -14,12 +14,28 @@ interface Props {
 const props = defineProps<Props>();
 let currentTileLayer: L.TileLayer | null = null;
 
-// Достаем триггер и маркеры из стора
-const { markers, activeMarkerId, mapCenterTrigger, centerOnMarker, zoom } = useMarkers();
+const {
+  markers,
+  activeMarkerId,
+  mapCenterTrigger,
+  centerOnMarker,
+  zoom,
+  draftMarker,
+  draftIsNew,
+  openNewMarker,
+  openEditMarker
+} = useMarkers();
 
 const mapContainer = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;
 const leafletMarkers = new Map<string, L.Marker>();
+let draftLeafletMarker: L.Marker | null = null;
+
+const makePopupHtml = (data: MarkerData) =>
+  `<strong>${data.title || '...'}</strong>` +
+  (data.description
+    ? `<br/><span style="font-size:12px;color:#64748b">${data.description}</span>`
+    : '');
 
 const createMarkerIcon = (data: MarkerData): L.DivIcon => {
   if (data.icon) {
@@ -46,6 +62,9 @@ const createMarkerIcon = (data: MarkerData): L.DivIcon => {
 const syncMarkers = () => {
   if (!map) return;
 
+  // When editing an existing marker, hide the original leaflet marker
+  const draftId = !draftIsNew.value && draftMarker.value ? draftMarker.value.id : null;
+
   const storeIds = new Set(markers.value.map((m) => m.id));
   leafletMarkers.forEach((leafletMarker, id) => {
     if (!storeIds.has(id)) {
@@ -55,6 +74,16 @@ const syncMarkers = () => {
   });
 
   markers.value.forEach((data) => {
+    // Skip the marker being edited — it's shown as the draft marker
+    if (data.id === draftId) {
+      const existing = leafletMarkers.get(data.id);
+      if (existing) {
+        map?.removeLayer(existing);
+        leafletMarkers.delete(data.id);
+      }
+      return;
+    }
+
     const position: L.LatLngExpression = [Number(data.lat), Number(data.lng)];
 
     if (!leafletMarkers.has(data.id)) {
@@ -63,16 +92,10 @@ const syncMarkers = () => {
         draggable: props.draggable
       }).addTo(map!);
 
-      newMarker.bindPopup(`<strong>${data.title || 'Без названия'}</strong>`, {
-        closeButton: false
-      });
+      newMarker.bindPopup(makePopupHtml(data), { closeButton: false });
 
       newMarker.on('click', () => {
-        // Вызываем метод из стора. Он обновит activeMarkerId и mapCenterTrigger
-        centerOnMarker(data);
-
-        // Опционально: сразу открываем попап
-        newMarker.openPopup();
+        openEditMarker(data.id);
       });
 
       newMarker.on('dragend', () => {
@@ -89,7 +112,7 @@ const syncMarkers = () => {
         if (currentPos.lat !== Number(data.lat) || currentPos.lng !== Number(data.lng)) {
           existingMarker.setLatLng(position);
         }
-        existingMarker.setPopupContent(`<strong>${data.title || 'Без названия'}</strong>`);
+        existingMarker.setPopupContent(makePopupHtml(data));
         existingMarker.setIcon(createMarkerIcon(data));
       }
     }
@@ -114,39 +137,74 @@ onMounted(async () => {
 
   map.on('click', (e: L.LeafletMouseEvent) => {
     if (!props.draggable) return;
-    markers.value.push({
-      id: crypto.randomUUID(),
-      lat: e.latlng.lat.toFixed(6),
-      lng: e.latlng.lng.toFixed(6),
-      title: `Точка ${markers.value.length + 1}`
-    });
+    if (draftMarker.value) {
+      draftMarker.value.lat = e.latlng.lat.toFixed(6);
+      draftMarker.value.lng = e.latlng.lng.toFixed(6);
+    } else {
+      openNewMarker();
+      nextTick(() => {
+        if (draftMarker.value) {
+          draftMarker.value.lat = e.latlng.lat.toFixed(6);
+          draftMarker.value.lng = e.latlng.lng.toFixed(6);
+        }
+      });
+    }
   });
 
   syncMarkers();
+
+  // Create the always-present draft marker
+  const initPos: L.LatLngExpression = [Number(draftMarker.value.lat), Number(draftMarker.value.lng)];
+  draftLeafletMarker = L.marker(initPos, {
+    icon: createMarkerIcon(draftMarker.value),
+    draggable: true,
+    opacity: 0.75
+  }).addTo(map!);
+  draftLeafletMarker.bindPopup(makePopupHtml(draftMarker.value), { closeButton: false });
+  draftLeafletMarker.on('dragend', () => {
+    const p = draftLeafletMarker!.getLatLng();
+    draftMarker.value.lat = p.lat.toFixed(6);
+    draftMarker.value.lng = p.lng.toFixed(6);
+  });
+
   setTimeout(() => map?.invalidateSize(), 400);
 });
 
+// Draft marker on the map — draftMarker is always non-null
+watch(
+  draftMarker,
+  (draft) => {
+    if (!map || !draftLeafletMarker) return;
+    const pos: L.LatLngExpression = [Number(draft.lat), Number(draft.lng)];
+    const currentPos = draftLeafletMarker.getLatLng();
+    if (currentPos.lat !== Number(draft.lat) || currentPos.lng !== Number(draft.lng)) {
+      draftLeafletMarker.setLatLng(pos);
+    }
+    draftLeafletMarker.setIcon(createMarkerIcon(draft));
+    draftLeafletMarker.setPopupContent(makePopupHtml(draft));
+    syncMarkers();
+  },
+  { deep: true }
+);
+
 // Watch за триггером центрирования
 watch(mapCenterTrigger, (coords) => {
-  if (coords && map) {
-    const lat = Number(coords.lat);
-    const lng = Number(coords.lng);
+  if (!coords || !map) return;
+  const lat = Number(coords.lat);
+  const lng = Number(coords.lng);
+  if (isNaN(lat) || isNaN(lng)) return;
 
-    if (!isNaN(lat) && !isNaN(lng)) {
-      // Берем текущий зум карты вместо фиксированного числа
-      const currentZoom = map.getZoom();
+  map.flyTo([lat, lng], map.getZoom(), { animate: true, duration: 0.3 });
 
-      map.flyTo([lat, lng], currentZoom, {
-        animate: true,
-        duration: 0.3
-      });
-
-      const leafletMarker = leafletMarkers.get(activeMarkerId.value || '');
-      if (leafletMarker) {
-        leafletMarker.openPopup();
-      }
+  // nextTick: ждём, пока syncMarkers уберёт оригинал и черновик встанет на место
+  nextTick(() => {
+    const regular = leafletMarkers.get(activeMarkerId.value || '');
+    if (regular) {
+      regular.openPopup();
+    } else if (draftLeafletMarker && !draftIsNew.value) {
+      draftLeafletMarker.openPopup();
     }
-  }
+  });
 });
 
 watch(markers, () => syncMarkers(), { deep: true });
@@ -155,6 +213,7 @@ onUnmounted(() => {
   if (map) {
     map.remove();
     map = null;
+    draftLeafletMarker = null;
   }
 });
 
@@ -164,7 +223,6 @@ watch(zoom, (newZoom) => {
   }
 });
 
-// Функция смены слоя
 const updateMapStyle = (style: string) => {
   if (!map) return;
 
@@ -209,15 +267,15 @@ watch(
 }
 
 :deep(.leaflet-popup-content-wrapper) {
-  border-radius: 8px; /* Вместо 0.5rem */
+  border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  padding: 4px; /* Вместо 0.25rem */
+  padding: 4px;
   font-family: inherit;
 }
 
 :deep(.leaflet-popup-content) {
-  margin: 8px 12px; /* Вместо 0.5rem 0.75rem */
-  font-size: 14px; /* Вместо 0.875rem */
+  margin: 8px 12px;
+  font-size: 14px;
   color: #1e293b;
 }
 

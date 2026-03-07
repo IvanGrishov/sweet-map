@@ -2,10 +2,8 @@
 import { useMarkers } from '@/composables/useMarkers';
 import BaseButton from '@/components/ui/BaseButton.vue';
 import IconPlus from '@/components/ui/icons/IconPlus.vue';
-import PrimaryButton from '@/components/ui/PrimaryButton.vue';
-import IconSave from '@/components/ui/icons/IconSave.vue';
 import MarkerItem from '@/components/settings/MarkerItem.vue';
-import { MarkerData } from '@/types';
+import MarkerEditor from '@/components/settings/MarkerEditor.vue';
 import { nextTick, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import DevBadge from '@/components/ui/DevBadge.vue';
@@ -14,24 +12,7 @@ import MapStyleSelect from '@/components/settings/MapStyleSelect.vue';
 
 const { t } = useI18n();
 
-const {
-  markers,
-  isSaving,
-  addMarker,
-  removeMarker,
-  saveMarkers,
-  centerOnMarker,
-  activeMarkerId,
-  mapStyle
-} = useMarkers();
-
-defineEmits<{
-  select: [marker: MarkerData];
-}>();
-
-const handleSelect = (marker: MarkerData) => {
-  centerOnMarker(marker);
-};
+const { markers, activeMarkerId, openNewMarker, openEditMarker, mapStyle } = useMarkers();
 
 const isDev = !window.wpData;
 
@@ -39,76 +20,59 @@ const scrollContainer = ref<HTMLElement | null>(null);
 
 watch(activeMarkerId, async (newId) => {
   if (!newId || !scrollContainer.value) return;
-
   await nextTick();
-
-  // Ищем элемент по селектору атрибута [data-id="..."]
-  const activeElement = scrollContainer.value.querySelector(`[data-id="${newId}"]`) as HTMLElement;
-
-  if (activeElement) {
-    activeElement.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center' // Центрируем строго посередине контейнера
-    });
-  }
+  const el = scrollContainer.value.querySelector(`[data-id="${newId}"]`) as HTMLElement;
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 </script>
 
 <template>
-  <div
-    class="mlm-sidebar flex flex-col gap-4 w-80 p-4 pt-0 rounded-2xl bg-white border border-slate-200 shadow-xl relative"
-  >
-    <div class="sticky top-11 z-20 -mx-4 py-4 bg-white border-b border-slate-300">
-      <PrimaryButton :loading="isSaving" @click="saveMarkers">
-        <template #icon>
-          <IconSave />
-        </template>
-        {{ t('admin.save') }}
-      </PrimaryButton>
+  <div class="mlm-sidebar w-80 flex flex-col gap-0 relative">
+    <!-- Editor — sticky at top -->
+    <div class="sticky top-11 z-20">
+      <MarkerEditor />
     </div>
-    <div class="pt-2">
-      <div class="flex items-center justify-between mb-1">
-        <div class="flex flex-col">
-          <h3 class="m-0 text-slate-800 text-xl font-black tracking-tight leading-tight">
+
+    <!-- Locations section -->
+    <div class="mt-5 flex flex-col gap-3">
+      <!-- Section header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-slate-400 m-0 leading-none mb-0.5">
+            {{ t('admin.total') }} {{ markers.length }}
+          </p>
+          <h3 class="m-0 text-slate-800 text-lg font-black tracking-tight leading-tight">
             {{ t('admin.locations') }}
           </h3>
-          <span class="text-[0.625rem] text-slate-400 font-bold uppercase tracking-widest">
-            {{ t('admin.total') }} {{ markers.length }}
-          </span>
         </div>
 
-        <BaseButton @click="addMarker">
+        <BaseButton @click="openNewMarker">
           <IconPlus />
           {{ t('admin.add_marker') }}
         </BaseButton>
       </div>
 
+      <!-- Marker list -->
       <div
         ref="scrollContainer"
-        class="overflow-y-auto custom-scrollbar p-2 relative -left-2 max-h-110 flex flex-col gap-4 w-[calc(100%+16px)]"
+        class="overflow-y-auto custom-scrollbar flex flex-col gap-1 max-h-56"
       >
         <MarkerItem
-          v-for="(marker, index) in markers"
+          v-for="marker in markers"
           :key="marker.id"
-          v-model="markers[index]"
+          :marker="marker"
+          :is-active="activeMarkerId === marker.id"
           :data-id="marker.id"
-          :class="[
-            'transition-all duration-300 rounded-2xl cursor-pointer relative',
-            activeMarkerId === marker.id
-              ? 'bg-white border border-indigo-900 ring-2 ring-indigo-500 scale-[1.01] z-10'
-              : 'bg-slate-100 border border-transparent opacity-70 hover:opacity-100 hover:bg-white hover:border-slate-200'
-          ]"
-          @remove="removeMarker"
-          @select="handleSelect"
+          @select="openEditMarker"
         />
 
-        <div v-if="markers.length === 0" class="text-center text-sm text-slate-400 italic py-8">
+        <div v-if="markers.length === 0" class="text-center text-sm text-slate-400 italic py-6">
           {{ t('admin.no_markers') }}
         </div>
       </div>
 
+      <!-- Map settings -->
       <MapZoomControl />
-
       <MapStyleSelect v-model="mapStyle" />
 
       <DevBadge v-if="isDev" />
@@ -117,7 +81,6 @@ watch(activeMarkerId, async (newId) => {
 </template>
 
 <style scoped>
-/* В обычном CSS блоке пишем в px */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }

@@ -2,7 +2,6 @@ import { ref, readonly } from 'vue';
 import type { MarkerData } from '@/types';
 import { useI18n } from 'vue-i18n';
 
-// 1. Загружаем из WP или создаем пустой массив
 const initialData = window.wpData?.coords || [];
 const markers = ref<MarkerData[]>(initialData);
 const isSaving = ref(false);
@@ -11,51 +10,21 @@ const mapCenterTrigger = ref<{ lat: string; lng: string } | null>(null);
 const zoom = ref(window.wpData?.zoom || 10);
 const mapStyle = ref(window.wpData?.mapStyle || 'osm');
 
-let isInitialized = false;
+const _initDraft = (): MarkerData => {
+  const base = (window.wpData?.coords as MarkerData[] | undefined)?.at(-1);
+  return {
+    id: crypto.randomUUID(),
+    lat: base ? (Number(base.lat) + 0.002).toFixed(6) : '55.7512',
+    lng: base ? (Number(base.lng) + 0.002).toFixed(6) : '37.6184',
+    title: ''
+  };
+};
+
+const draftMarker = ref<MarkerData>(_initDraft());
+const draftIsNew = ref(true);
 
 export function useMarkers() {
   const { t } = useI18n();
-
-  // 2. ГАРАНТИРУЕМ наличие точки по умолчанию, если список пуст
-  const initDefaultPoint = () => {
-    // Проверяем и массив, и флаг
-    if (!isInitialized && markers.value.length === 0) {
-      markers.value.push({
-        id: 'default-point',
-        lat: '55.7512',
-        lng: '37.6184',
-        title: t('admin.initial_point')
-      });
-
-      isInitialized = true; // Помечаем, что закончили
-    }
-  };
-
-  initDefaultPoint();
-
-  const addMarker = (customData?: Partial<MarkerData>) => {
-    const lastMarker = markers.value[markers.value.length - 1];
-
-    // Приводим к числу сразу, чтобы математика была чистой
-    const baseLat = lastMarker ? Number(lastMarker.lat) : 55.7512;
-    const baseLng = lastMarker ? Number(lastMarker.lng) : 37.6184;
-
-    const offset = markers.value.length > 0 ? 0.02 : 0;
-
-    // Рассчитываем новые значения как числа
-    const newLat = customData?.lat ? Number(customData.lat) : baseLat;
-    const newLng = customData?.lng ? Number(customData.lng) : baseLng + offset;
-
-    const newMarker: MarkerData = {
-      id: crypto.randomUUID(),
-      // .toFixed() теперь работает, так как newLat и newLng точно числа
-      lat: newLat.toFixed(6),
-      lng: newLng.toFixed(6),
-      title: customData?.title || t('admin.marker_item', { index: markers.value.length + 1 })
-    };
-
-    markers.value.push(newMarker);
-  };
 
   const removeMarker = (id: string) => {
     markers.value = markers.value.filter((m) => m.id !== id);
@@ -67,7 +36,6 @@ export function useMarkers() {
       lat: String(marker.lat),
       lng: String(marker.lng)
     };
-    console.log('Trigger updated:', mapCenterTrigger.value); // Для отладки
   };
 
   const saveMarkers = async () => {
@@ -95,16 +63,67 @@ export function useMarkers() {
     }
   };
 
+  function openNewMarker() {
+    const base = markers.value.at(-1);
+    draftMarker.value = {
+      id: crypto.randomUUID(),
+      lat: base ? (Number(base.lat) + 0.002).toFixed(6) : '55.7512',
+      lng: base ? (Number(base.lng) + 0.002).toFixed(6) : '37.6184',
+      title: ''
+    };
+    draftIsNew.value = true;
+    activeMarkerId.value = null;
+  }
+
+  function openEditMarker(id: string) {
+    const found = markers.value.find((m) => m.id === id);
+    if (!found) return;
+    draftMarker.value = { ...found };
+    draftIsNew.value = false;
+    centerOnMarker(found);
+  }
+
+  function cancelDraft() {
+    openNewMarker();
+  }
+
+  async function saveDraft() {
+    const snapshot = { ...draftMarker.value };
+    if (draftIsNew.value) {
+      markers.value.push(snapshot);
+    } else {
+      const idx = markers.value.findIndex((m) => m.id === snapshot.id);
+      if (idx !== -1) markers.value[idx] = snapshot;
+    }
+    openNewMarker();
+    await saveMarkers();
+  }
+
+  async function deleteDraftMarker() {
+    if (draftIsNew.value) return;
+    const id = draftMarker.value.id;
+    removeMarker(id);
+    if (activeMarkerId.value === id) activeMarkerId.value = null;
+    openNewMarker();
+    await saveMarkers();
+  }
+
   return {
     markers,
     isSaving: readonly(isSaving),
-    addMarker,
     removeMarker,
     saveMarkers,
     activeMarkerId,
     mapCenterTrigger,
     centerOnMarker,
     zoom,
-    mapStyle
+    mapStyle,
+    draftMarker,
+    draftIsNew,
+    openNewMarker,
+    openEditMarker,
+    cancelDraft,
+    saveDraft,
+    deleteDraftMarker
   };
 }

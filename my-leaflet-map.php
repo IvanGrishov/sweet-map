@@ -112,12 +112,13 @@ function mlm_handle_save_markers($request) {
   $sanitized_markers = array();
   foreach ($markers as $marker) {
     $sanitized_markers[] = array(
-      'id'    => sanitize_text_field($marker['id'] ?? ''),
-      'lat'   => sanitize_text_field($marker['lat'] ?? ''),
-      'lng'   => sanitize_text_field($marker['lng'] ?? ''),
-      'title' => sanitize_text_field($marker['title'] ?? ''),
-      'color' => sanitize_hex_color($marker['color'] ?? '') ?? '',
-      'icon'  => sanitize_text_field($marker['icon'] ?? ''),
+      'id'          => sanitize_text_field($marker['id'] ?? ''),
+      'lat'         => sanitize_text_field($marker['lat'] ?? ''),
+      'lng'         => sanitize_text_field($marker['lng'] ?? ''),
+      'title'       => sanitize_text_field($marker['title'] ?? ''),
+      'description' => sanitize_textarea_field($marker['description'] ?? ''),
+      'color'       => sanitize_hex_color($marker['color'] ?? '') ?? '',
+      'icon'        => sanitize_text_field($marker['icon'] ?? ''),
     );
   }
 
