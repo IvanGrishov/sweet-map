@@ -8,6 +8,11 @@
   margin-right: unset !important;
 }
 
+/* Наш собственный ограничитель ширины — специфичность выше чем у wildcard выше */
+#mlm-map-admin-root .mlm-search-header {
+  max-width: 36rem !important;
+}
+
 .wp-block-post-title {
   max-width: none !important;
   margin-left: unset !important;

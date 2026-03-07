@@ -26,7 +26,7 @@ const { mapStyle, mapHeight } = useMarkers();
   >
     <AdminSettings v-if="canEdit" />
     <div class="flex flex-col flex-1 gap-3 min-w-0">
-      <div class="flex flex-col gap-2" style="max-width: 36rem;">
+      <div class="mlm-search-header flex flex-col gap-2">
         <MapTitle :can-edit="canEdit" />
         <MapSearch :can-edit="canEdit" />
       </div>
