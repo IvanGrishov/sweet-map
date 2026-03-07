@@ -16,6 +16,11 @@
     "zoom_max": "Макс",
     "map_style": "Map Style",
     "style_osm": "Standard (OSM)",
-    "style_satellite": "Satellite (HD)"
+    "style_satellite": "Satellite (HD)",
+    "marker_appearance": "Marker appearance",
+    "pin_color": "Pin color",
+    "upload_icon": "Upload icon",
+    "remove_icon": "Remove icon",
+    "icon_size_warning": "File is large ({size} KB). It will be stored as base64."
   }
 }

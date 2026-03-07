@@ -4,6 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useMarkers } from '@/composables/useMarkers';
 import { MAP_LAYERS } from '@/constants';
+import { MarkerData } from '@/types';
 
 interface Props {
   draggable: boolean;
@@ -20,15 +21,27 @@ const mapContainer = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;
 const leafletMarkers = new Map<string, L.Marker>();
 
-const customIcon = L.divIcon({
-  html: `<svg width="30" height="42" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
-          <path d="M12 21C16 17 20 13.4183 20 9C20 4.58172 16.4183 1 12 1C7.58172 1 4 4.58172 4 9C4 13.4183 8 17 12 21Z" fill="#4f46e5" stroke="white" stroke-width="2"/>
-          <circle cx="12" cy="9" r="3" fill="white"/></svg>`,
-  className: 'mlm-custom-marker',
-  iconSize: [30, 42],
-  iconAnchor: [15, 42],
-  popupAnchor: [0, -40]
-});
+const createMarkerIcon = (data: MarkerData): L.DivIcon => {
+  if (data.icon) {
+    return L.divIcon({
+      html: `<img src="${data.icon}" style="width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))" />`,
+      className: 'mlm-custom-marker',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -42]
+    });
+  }
+  const color = data.color || '#4f46e5';
+  return L.divIcon({
+    html: `<svg width="30" height="42" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
+            <path d="M12 21C16 17 20 13.4183 20 9C20 4.58172 16.4183 1 12 1C7.58172 1 4 4.58172 4 9C4 13.4183 8 17 12 21Z" fill="${color}" stroke="white" stroke-width="2"/>
+            <circle cx="12" cy="9" r="3" fill="white"/></svg>`,
+    className: 'mlm-custom-marker',
+    iconSize: [30, 42],
+    iconAnchor: [15, 42],
+    popupAnchor: [0, -40]
+  });
+};
 
 const syncMarkers = () => {
   if (!map) return;
@@ -46,7 +59,7 @@ const syncMarkers = () => {
 
     if (!leafletMarkers.has(data.id)) {
       const newMarker = L.marker(position, {
-        icon: customIcon,
+        icon: createMarkerIcon(data),
         draggable: props.draggable
       }).addTo(map!);
 
@@ -77,6 +90,7 @@ const syncMarkers = () => {
           existingMarker.setLatLng(position);
         }
         existingMarker.setPopupContent(`<strong>${data.title || 'Без названия'}</strong>`);
+        existingMarker.setIcon(createMarkerIcon(data));
       }
     }
   });

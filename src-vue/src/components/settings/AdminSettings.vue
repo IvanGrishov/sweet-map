@@ -4,13 +4,13 @@ import BaseButton from '@/components/ui/BaseButton.vue';
 import IconPlus from '@/components/ui/icons/IconPlus.vue';
 import PrimaryButton from '@/components/ui/PrimaryButton.vue';
 import IconSave from '@/components/ui/icons/IconSave.vue';
-import MarkerItem from '@/components/MarkerItem.vue';
+import MarkerItem from '@/components/settings/MarkerItem.vue';
 import { MarkerData } from '@/types';
 import { nextTick, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import DevBadge from '@/components/ui/DevBadge.vue';
-import MapZoomControl from '@/components/MapZoomControl.vue';
-import MapStyleSelect from '@/components/MapStyleSelect.vue';
+import MapZoomControl from '@/components/settings/MapZoomControl.vue';
+import MapStyleSelect from '@/components/settings/MapStyleSelect.vue';
 
 const { t } = useI18n();
 

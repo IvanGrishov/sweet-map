@@ -17,6 +17,11 @@
     "zoom_max": "Макс",
     "map_style": "Стиль карты",
     "style_osm": "Стандарт (OSM)",
-    "style_satellite": "Спутник (HD)"
+    "style_satellite": "Спутник (HD)",
+    "marker_appearance": "Внешний вид маркера",
+    "pin_color": "Цвет пина",
+    "upload_icon": "Загрузить иконку",
+    "remove_icon": "Удалить иконку",
+    "icon_size_warning": "Файл большой ({size} КБ). Будет сохранён как base64."
   }
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import AdminSettings from './components/AdminSettings.vue';
-import LMap from './components/LMap.vue';
+import AdminSettings from './components/settings/AdminSettings.vue';
+import LMap from './components/map/LMap.vue';
 import { useMarkers } from '@/composables/useMarkers';
 
 const isDev = import.meta.env.DEV;

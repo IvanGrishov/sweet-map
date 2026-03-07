@@ -116,6 +116,8 @@ function mlm_handle_save_markers($request) {
       'lat'   => sanitize_text_field($marker['lat'] ?? ''),
       'lng'   => sanitize_text_field($marker['lng'] ?? ''),
       'title' => sanitize_text_field($marker['title'] ?? ''),
+      'color' => sanitize_hex_color($marker['color'] ?? '') ?? '',
+      'icon'  => sanitize_text_field($marker['icon'] ?? ''),
     );
   }
 
