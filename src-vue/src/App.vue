@@ -27,7 +27,7 @@ const { mapStyle, mapHeight } = useMarkers();
     <AdminSettings v-if="canEdit" />
     <div class="flex flex-col flex-1 gap-3 min-w-0">
       <MapTitle :can-edit="canEdit" />
-      <MapSearch />
+      <MapSearch :can-edit="canEdit" />
       <LMap :draggable="canEdit" :map-style="mapStyle" :map-height="mapHeight" />
     </div>
     <ToastNotification />
