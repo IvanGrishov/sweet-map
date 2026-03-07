@@ -12,6 +12,7 @@ declare global {
       coords: MarkerData[];
       zoom: number;
       mapStyle: string;
+      mapTitle: string;
     };
   }
 }

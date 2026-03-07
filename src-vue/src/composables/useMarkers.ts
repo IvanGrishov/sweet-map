@@ -10,6 +10,7 @@ const activeMarkerId = ref<string | null>(null);
 const mapCenterTrigger = ref<{ lat: string; lng: string } | null>(null);
 const zoom = ref(window.wpData?.zoom || 10);
 const mapStyle = ref(window.wpData?.mapStyle || 'osm');
+const mapTitle = ref(window.wpData?.mapTitle || '');
 
 const _initDraft = (): MarkerData => {
   const base = (window.wpData?.coords as MarkerData[] | undefined)?.at(-1);
@@ -54,7 +55,8 @@ export function useMarkers() {
         body: JSON.stringify({
           markers: markers.value,
           zoom: Number(zoom.value),
-          map_style: mapStyle.value
+          map_style: mapStyle.value,
+          map_title: mapTitle.value
         })
       });
       if (!response.ok) throw new Error();
@@ -122,6 +124,7 @@ export function useMarkers() {
     centerOnMarker,
     zoom,
     mapStyle,
+    mapTitle,
     draftMarker,
     draftIsNew,
     openNewMarker,
