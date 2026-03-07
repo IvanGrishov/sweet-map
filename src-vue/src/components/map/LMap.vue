@@ -37,20 +37,42 @@ const leafletMarkers = new Map<string, L.Marker>();
 let draftLeafletMarker: L.Marker | null = null;
 
 const makePopupHtml = (data: MarkerData) => {
-  let html = '';
+  const hasContent = data.title || data.description || data.link;
+  let html = `<div style="width:220px;overflow:hidden;font-family:inherit">`;
+
   if (data.image) {
-    html += `<img src="${data.image}" style="width:100%;max-height:120px;object-fit:cover;border-radius:6px;margin-bottom:6px;display:block" />`;
+    const radius = hasContent ? '8px 8px 0 0' : '8px';
+    html += `<img src="${data.image}" style="width:100%;height:130px;object-fit:cover;display:block;border-radius:${radius}" />`;
   }
-  html += `<strong style="font-size:14px">${data.title || '...'}</strong>`;
-  if (data.description) {
-    html += `<div style="font-size:12px;color:#64748b;margin-top:3px">${data.description}</div>`;
+
+  if (hasContent) {
+    html += `<div style="padding:12px 14px ${data.link ? '0' : '14px'}">`;
+
+    if (data.title) {
+      html += `<div style="font-size:14px;font-weight:700;color:#0f172a;line-height:1.3">${data.title}</div>`;
+    }
+
+    if (data.description) {
+      html += `<div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.5">${data.description}</div>`;
+    }
+
+    html += `</div>`;
+
+    if (data.link) {
+      html += `<div style="margin:10px 14px 12px;padding-top:10px;border-top:1px solid #f1f5f9">
+        <a href="${data.link}" target="_blank" rel="noopener"
+          style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#4f46e5;text-decoration:none;font-weight:600">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Подробнее
+        </a>
+      </div>`;
+    }
   }
-  if (data.link) {
-    html += `<a href="${data.link}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:12px;color:#4f46e5;text-decoration:none;font-weight:500">
-      <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      Подробнее
-    </a>`;
-  }
+
+  html += `</div>`;
   return html;
 };
 
@@ -332,12 +354,13 @@ watch(mapFlyTrigger, (coords) => {
 
 :deep(.leaflet-popup-content-wrapper) {
   border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  padding: 4px;
+  box-shadow: 0 8px 24px -4px rgb(0 0 0 / 0.15);
+  padding: 0;
+  overflow: hidden;
   font-family: inherit;
 }
 :deep(.leaflet-popup-content) {
-  margin: 8px 12px;
+  margin: 0;
   font-size: 14px;
   color: #1e293b;
 }
