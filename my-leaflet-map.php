@@ -15,6 +15,29 @@ add_action('init', function() {
   load_plugin_textdomain('map', false, dirname(plugin_basename(__FILE__)) . '/languages');
 });
 
+/**
+ * Обработка создания новой карты (до вывода HTML)
+ */
+add_action('admin_init', function () {
+  if (
+    !isset($_GET['page'], $_GET['create_map'], $_GET['new_map_id'])
+    || $_GET['page'] !== 'mlm-settings-page'
+    || !current_user_can('manage_options')
+  ) return;
+
+  $new_id  = sanitize_key($_GET['new_map_id']);
+  if (!$new_id) return;
+
+  $map_ids = get_option('mlm_map_ids', ['default']);
+  if (!in_array($new_id, $map_ids)) {
+    $map_ids[] = $new_id;
+    update_option('mlm_map_ids', $map_ids);
+  }
+
+  wp_redirect(admin_url('admin.php?page=mlm-settings-page&map_id=' . urlencode($new_id)));
+  exit;
+});
+
 add_action('admin_menu', function () {
   add_menu_page(
     __('Vue Map', 'map'),
@@ -157,16 +180,6 @@ function mlm_render_page() {
   $map_id  = sanitize_key($_GET['map_id'] ?? 'default');
   $map_ids = get_option('mlm_map_ids', ['default']);
 
-  // Добавить новый ID в список при GET-запросе с create_map
-  if (!empty($_GET['create_map']) && !empty($_GET['new_map_id'])) {
-    $new_id = sanitize_key($_GET['new_map_id']);
-    if ($new_id && !in_array($new_id, $map_ids)) {
-      $map_ids[] = $new_id;
-      update_option('mlm_map_ids', $map_ids);
-    }
-    wp_redirect(admin_url('admin.php?page=mlm-settings-page&map_id=' . urlencode($new_id)));
-    exit;
-  }
   ?>
   <div class="wrap">
     <h1 style="margin-bottom:12px"><?= __('Vue Map', 'map') ?></h1>
