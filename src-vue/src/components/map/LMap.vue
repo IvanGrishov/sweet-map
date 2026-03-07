@@ -59,7 +59,7 @@ const makePopupHtml = (data: MarkerData) => {
     html += `</div>`;
 
     if (data.link) {
-      html += `<div style="margin:10px 14px 12px;padding-top:10px;border-top:1px solid #f1f5f9">
+      html += `<div style="padding:10px 14px 12px;border-top:1px solid #f1f5f9">
         <a href="${data.link}" target="_blank" rel="noopener"
           style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#4f46e5;text-decoration:none;font-weight:600">
           <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
