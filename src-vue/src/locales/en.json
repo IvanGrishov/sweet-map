@@ -18,6 +18,7 @@
     "description_placeholder": "Additional info...",
     "map_zoom": "Default zoom",
     "zoom_saved": "Default zoom saved",
+    "style_saved": "Map style saved",
     "zoom_min": "Мин",
     "zoom_max": "Макс",
     "map_style": "Map Style",

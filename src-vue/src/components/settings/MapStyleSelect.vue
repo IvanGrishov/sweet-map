@@ -1,6 +1,13 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import IconArrowDown from '@/components/ui/icons/IconArrowDown.vue';
+import { useMarkers } from '@/composables/useMarkers';
+import { useToast } from '@/composables/useToast';
+
+const { t } = useI18n();
+const { saveMarkers } = useMarkers();
+const toast = useToast();
 
 const model = defineModel({ type: String, required: true });
 const isOpen = ref(false);
@@ -11,9 +18,11 @@ const mapOptions = [
   { value: 'satellite', label: 'admin.style_satellite' }
 ];
 
-const selectOption = (val) => {
+const selectOption = async (val) => {
   model.value = val;
   isOpen.value = false;
+  await saveMarkers();
+  toast.show(t('admin.style_saved'));
 };
 
 const handleClickOutside = (event) => {
