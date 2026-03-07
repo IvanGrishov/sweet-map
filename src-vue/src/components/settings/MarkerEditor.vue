@@ -11,6 +11,8 @@ import FieldTitle from '@/components/editor/FieldTitle.vue';
 import FieldDescription from '@/components/editor/FieldDescription.vue';
 import FieldColorPicker from '@/components/editor/FieldColorPicker.vue';
 import FieldIconUpload from '@/components/editor/FieldIconUpload.vue';
+import FieldImage from '@/components/editor/FieldImage.vue';
+import FieldLink from '@/components/editor/FieldLink.vue';
 
 const { t } = useI18n();
 const { draftMarker, draftIsNew, isSaving, saveDraft, cancelDraft, deleteDraftMarker } =
@@ -49,6 +51,10 @@ const draft = computed(() => draftMarker.value);
         />
       </div>
     </div>
+
+    <FieldImage v-model="draft.image" />
+
+    <FieldLink v-model="draft.link" />
 
     <!-- Appearance -->
     <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-3">

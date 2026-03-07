@@ -36,11 +36,23 @@ let clusterGroup: L.MarkerClusterGroup | null = null;
 const leafletMarkers = new Map<string, L.Marker>();
 let draftLeafletMarker: L.Marker | null = null;
 
-const makePopupHtml = (data: MarkerData) =>
-  `<strong>${data.title || '...'}</strong>` +
-  (data.description
-    ? `<br/><span style="font-size:12px;color:#64748b">${data.description}</span>`
-    : '');
+const makePopupHtml = (data: MarkerData) => {
+  let html = '';
+  if (data.image) {
+    html += `<img src="${data.image}" style="width:100%;max-height:120px;object-fit:cover;border-radius:6px;margin-bottom:6px;display:block" />`;
+  }
+  html += `<strong style="font-size:14px">${data.title || '...'}</strong>`;
+  if (data.description) {
+    html += `<div style="font-size:12px;color:#64748b;margin-top:3px">${data.description}</div>`;
+  }
+  if (data.link) {
+    html += `<a href="${data.link}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:12px;color:#4f46e5;text-decoration:none;font-weight:500">
+      <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Подробнее
+    </a>`;
+  }
+  return html;
+};
 
 const createMarkerIcon = (data: MarkerData): L.DivIcon => {
   if (data.icon) {

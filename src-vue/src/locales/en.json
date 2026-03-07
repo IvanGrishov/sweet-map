@@ -35,6 +35,10 @@
     "title_saved": "Title saved",
     "map_height": "Map height",
     "height_saved": "Height saved",
-    "search_placeholder": "Search address..."
+    "search_placeholder": "Search address...",
+    "image_url": "Image",
+    "image_url_placeholder": "https://example.com/image.jpg",
+    "link_url": "Link",
+    "link_url_placeholder": "https://example.com"
   }
 }
