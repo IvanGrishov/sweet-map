@@ -22,10 +22,10 @@ const { mapStyle, mapHeight } = useMarkers();
 
 <template>
   <div
-    class="mlm-plugin-root flex flex-col md:flex-row gap-5 p-4 pt-8 font-sans min-h-150 relative"
+    class="mlm-plugin-root flex flex-col md:flex-row gap-5 p-4 pt-8 font-sans relative items-start"
   >
     <AdminSettings v-if="canEdit" />
-    <div class="flex flex-col flex-1 gap-3 min-w-0">
+    <div class="flex flex-col flex-1 gap-3 min-w-0 md:sticky md:top-8">
       <div class="mlm-search-header flex flex-col gap-2">
         <MapTitle :can-edit="canEdit" />
         <MapSearch :can-edit="canEdit" />

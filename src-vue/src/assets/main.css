@@ -24,6 +24,46 @@
   margin-block-start: 0 !important; /* Или то значение, которое нужно тебе */
 }
 
+/* -------------------------------------------------------
+   WP admin compatibility: unlayered rules beat @layer but
+   still respect cascade — using ID specificity to win over
+   WP's own input styles (which are also unlayered).
+   ------------------------------------------------------- */
+
+/* Title input — transparent bg, bottom border only */
+#mlm-map-admin-root .mlm-title-input {
+  background-color: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  box-shadow: none !important;
+  padding: 0 0 4px !important;
+  line-height: 1.25 !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  width: 100% !important;
+  transition: border-color 0.15s;
+}
+#mlm-map-admin-root .mlm-title-input::placeholder { color: #cbd5e1 !important; }
+#mlm-map-admin-root .mlm-title-input:hover        { border-bottom-color: #e2e8f0 !important; }
+#mlm-map-admin-root .mlm-title-input:focus        { border-bottom-color: #818cf8 !important; outline: none !important; }
+
+/* Search input — inside styled parent, needs no own border */
+#mlm-map-admin-root .mlm-search-input {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  line-height: 1.5 !important;
+  height: auto !important;
+  font-size: 0.875rem !important;
+  color: #334155 !important;
+  font-family: inherit !important;
+}
+#mlm-map-admin-root .mlm-search-input::placeholder      { color: #94a3b8 !important; }
+#mlm-map-admin-root .mlm-search-input:focus,
+#mlm-map-admin-root .mlm-search-input:focus-visible     { outline: none !important; box-shadow: none !important; }
+
 @layer base {
   button,
   [type='button'],

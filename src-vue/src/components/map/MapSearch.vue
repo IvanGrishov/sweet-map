@@ -93,7 +93,7 @@ const onBlur = () => {
         v-model="query"
         type="text"
         :placeholder="t('admin.search_placeholder')"
-        class="flex-1 text-sm text-slate-700 placeholder:text-slate-400 bg-transparent outline-none min-w-0"
+        class="mlm-search-input flex-1 min-w-0"
         @input="onInput"
         @keydown.enter.prevent="search"
         @keydown.escape="showDropdown = false"

@@ -29,7 +29,7 @@ watch(mapTitle, () => {
     v-model="mapTitle"
     type="text"
     :placeholder="t('admin.map_title_placeholder')"
-    class="w-full text-2xl font-bold text-slate-800 bg-transparent border-b-2 border-transparent placeholder:text-slate-300 hover:border-slate-200 focus:border-indigo-400 focus:outline-none transition-all pb-1"
+    class="mlm-title-input w-full"
   />
 
   <!-- Frontend: static heading -->
