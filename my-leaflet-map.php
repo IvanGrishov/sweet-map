@@ -221,9 +221,35 @@ function mlm_render_page() {
 
   ?>
   <div class="wrap">
-    <h1 style="margin-bottom:12px"><?= __('Sweet Map', 'map') ?></h1>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
+      <h1 style="margin:0;padding:0;line-height:1.3"><?= __('Sweet Map', 'map') ?></h1>
+      <button
+        id="mlm-toggle-toolbar"
+        onclick="
+          var t = document.getElementById('mlm-toolbar');
+          var open = t.style.display !== 'none';
+          t.style.display = open ? 'none' : 'flex';
+          this.textContent = open ? '⚙️ <?= esc_js(__('Maps', 'map')) ?>' : '✕ <?= esc_js(__('Maps', 'map')) ?>';
+          localStorage.setItem('mlm_toolbar_open', open ? '0' : '1');
+        "
+        style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;transition:all .15s"
+        onmouseover="this.style.background='#f1f5f9';this.style.borderColor='#94a3b8'"
+        onmouseout="this.style.background='#f8fafc';this.style.borderColor='#e2e8f0'"
+      >⚙️ <?= __('Maps', 'map') ?></button>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          var open = localStorage.getItem('mlm_toolbar_open') === '1';
+          var t = document.getElementById('mlm-toolbar');
+          var btn = document.getElementById('mlm-toggle-toolbar');
+          if (open) {
+            t.style.display = 'flex';
+            btn.textContent = '✕ <?= esc_js(__('Maps', 'map')) ?>';
+          }
+        });
+      </script>
+    </div>
 
-    <div class="mlm-toolbar">
+    <div id="mlm-toolbar" class="mlm-toolbar" style="display:none">
       <!-- Переключатель карт -->
       <form method="GET" class="mlm-toolbar__group">
         <input type="hidden" name="page" value="mlm-settings-page">
