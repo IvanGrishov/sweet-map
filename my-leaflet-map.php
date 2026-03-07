@@ -1,8 +1,10 @@
 <?php
 /**
- * Plugin Name: My Leaflet Map Vue
+ * Plugin Name: Sweet Map
  * Version: 2.6
- * Description: Leaflet map with Vue 3 and Tailwind v4 admin interface.
+ * Description: Interactive Leaflet map with a visual marker editor. Multiple maps, address search, popups with images and links. Shortcode [sweet_map].
+ * Text Domain: map
+ * Domain Path: /languages
  */
 
 if (!defined('ABSPATH')) exit;
@@ -15,11 +17,12 @@ add_action('init', function() {
   load_plugin_textdomain('map', false, dirname(plugin_basename(__FILE__)) . '/languages');
 });
 
+
 /**
  * Обработка создания новой карты (до вывода HTML)
  */
 add_action('admin_init', function () {
-  if ($_GET['page'] ?? '' !== 'mlm-settings-page' || !current_user_can('manage_options')) return;
+  if (($_GET['page'] ?? '') !== 'mlm-settings-page' || !current_user_can('manage_options')) return;
 
   // Создание новой карты
   if (isset($_GET['create_map'], $_GET['new_map_id'])) {
@@ -55,13 +58,31 @@ add_action('admin_init', function () {
 
 add_action('admin_menu', function () {
   add_menu_page(
-    __('Vue Map', 'map'),
-    __('Vue Map', 'map'),
+    __('Sweet Map', 'map'),
+    __('Sweet Map', 'map'),
     'manage_options',
     'mlm-settings-page',
     'mlm_render_page',
     'dashicons-location',
     30
+  );
+
+  add_submenu_page(
+    'mlm-settings-page',
+    __('Maps', 'map'),
+    __('Maps', 'map'),
+    'manage_options',
+    'mlm-settings-page',
+    'mlm_render_page'
+  );
+
+  add_submenu_page(
+    'mlm-settings-page',
+    __('Guide', 'map'),
+    __('Guide', 'map'),
+    'manage_options',
+    'mlm-docs-page',
+    'mlm_render_docs'
   );
 });
 
@@ -96,7 +117,6 @@ function mlm_enqueue_assets($map_id = 'default') {
     'can_edit'  => is_admin() && current_user_can('manage_options'),
     'zoom'      => (int) get_option('mlm_map_zoom'   . $s, 13),
     'mapStyle'  => get_option('mlm_map_style'  . $s, 'osm'),
-    'mapTitle'  => get_option('mlm_map_title'  . $s, ''),
     'mapHeight'  => (int) get_option('mlm_map_height'  . $s, 500),
     'showSearch' => (bool) get_option('mlm_show_search' . $s, true),
   ));
@@ -109,6 +129,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
   if ($hook === 'toplevel_page_mlm-settings-page') {
     $map_id = sanitize_key($_GET['map_id'] ?? 'default');
     mlm_enqueue_assets($map_id);
+    wp_enqueue_style('mlm-admin', MLM_VUE_URL . 'assets/admin.css', [], MLM_VUE_VERSION);
   }
 });
 
@@ -121,10 +142,10 @@ add_filter('script_loader_tag', function ($tag, $handle, $src) {
 }, 10, 3);
 
 /**
- * Шорткод: [my_map id="default"]
+ * Шорткод: [sweet_map id="default"]
  */
-add_shortcode('my_map', function ($atts) {
-  $atts   = shortcode_atts(['id' => 'default'], $atts, 'my_map');
+add_shortcode('sweet_map', function ($atts) {
+  $atts   = shortcode_atts(['id' => 'default'], $atts, 'sweet_map');
   $map_id = sanitize_key($atts['id']);
   mlm_enqueue_assets($map_id);
   return '<div id="mlm-map-admin-root"></div>';
@@ -176,7 +197,6 @@ function mlm_handle_save_markers($request) {
   update_option('mlm_map_zoom'   . $s, intval($zoom));
 
   if (isset($params['map_style']))   update_option('mlm_map_style'   . $s, sanitize_text_field($params['map_style']));
-  if (isset($params['map_title']))   update_option('mlm_map_title'   . $s, sanitize_text_field($params['map_title']));
   if (isset($params['map_height']))  update_option('mlm_map_height'  . $s, intval($params['map_height']));
   if (isset($params['show_search'])) update_option('mlm_show_search' . $s, (bool) $params['show_search']);
 
@@ -190,6 +210,8 @@ function mlm_handle_save_markers($request) {
   return new WP_REST_Response(array('success' => true), 200);
 }
 
+require_once MLM_VUE_PATH . 'guide.php';
+
 /**
  * Рендер страницы админки
  */
@@ -199,39 +221,40 @@ function mlm_render_page() {
 
   ?>
   <div class="wrap">
-    <h1 style="margin-bottom:12px"><?= __('Vue Map', 'map') ?></h1>
+    <h1 style="margin-bottom:12px"><?= __('Sweet Map', 'map') ?></h1>
 
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <div class="mlm-toolbar">
       <!-- Переключатель карт -->
-      <form method="GET" style="display:flex;align-items:center;gap:8px">
+      <form method="GET" class="mlm-toolbar__group">
         <input type="hidden" name="page" value="mlm-settings-page">
-        <label style="font-weight:600;font-size:13px"><?= __('Map:', 'map') ?></label>
-        <select name="map_id" class="regular-text" style="height:30px" onchange="this.form.submit()">
+        <span class="mlm-toolbar__label"><?= __('Map:', 'map') ?></span>
+        <select name="map_id" class="mlm-toolbar__select" onchange="this.form.submit()">
           <?php foreach ($map_ids as $id): ?>
             <option value="<?= esc_attr($id) ?>" <?= $id === $map_id ? 'selected' : '' ?>>
               <?= esc_html($id) ?>
             </option>
           <?php endforeach; ?>
         </select>
-        <code style="background:#f0f0f0;padding:3px 8px;border-radius:4px;font-size:12px">
-          [my_map id="<?= esc_attr($map_id) ?>"]
-        </code>
+        <span class="mlm-toolbar__shortcode">[sweet_map id="<?= esc_attr($map_id) ?>"]</span>
       </form>
 
+      <div class="mlm-toolbar__divider"></div>
+
       <!-- Создать новую карту -->
-      <form method="GET" style="display:flex;align-items:center;gap:6px">
+      <form method="GET" class="mlm-toolbar__group">
         <input type="hidden" name="page" value="mlm-settings-page">
         <input type="hidden" name="create_map" value="1">
-        <input type="text" name="new_map_id" placeholder="my-new-map"
-          class="regular-text" style="height:28px;width:140px" pattern="[a-z0-9\-]+" title="Только a-z, 0-9, дефис">
-        <button type="submit" class="button button-secondary">+ <?= __('New map', 'map') ?></button>
+        <input type="text" name="new_map_id" placeholder="new-map-id"
+          class="mlm-toolbar__input" pattern="[a-z0-9\-]+" title="Только a-z, 0-9, дефис">
+        <button type="submit" class="mlm-toolbar__btn-add">+ <?= __('New map', 'map') ?></button>
       </form>
 
       <!-- Удалить карту (только не-default) -->
       <?php if ($map_id !== 'default'): ?>
+        <div class="mlm-toolbar__divider"></div>
         <a
           href="<?= esc_url(admin_url('admin.php?page=mlm-settings-page&delete_map=1&del_map_id=' . urlencode($map_id))) ?>"
-          class="button button-link-delete"
+          class="mlm-toolbar__btn-delete"
           onclick="return confirm('<?= esc_attr(sprintf(__('Delete map "%s" and all its markers? This cannot be undone.', 'map'), $map_id)) ?>')"
         ><?= __('Delete map', 'map') ?></a>
       <?php endif; ?>

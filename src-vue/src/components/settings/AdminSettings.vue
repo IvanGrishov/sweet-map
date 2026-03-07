@@ -4,7 +4,6 @@ import MarkerItem from '@/components/settings/MarkerItem.vue';
 import MarkerEditor from '@/components/settings/MarkerEditor.vue';
 import { nextTick, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import DevBadge from '@/components/ui/DevBadge.vue';
 import MapZoomControl from '@/components/settings/MapZoomControl.vue';
 import MapStyleSelect from '@/components/settings/MapStyleSelect.vue';
 import MapHeightControl from '@/components/settings/MapHeightControl.vue';
@@ -13,8 +12,6 @@ import ShowSearchToggle from '@/components/settings/ShowSearchToggle.vue';
 const { t } = useI18n();
 
 const { markers, activeMarkerId, openEditMarker, mapStyle } = useMarkers();
-
-const isDev = !window.wpData;
 
 const scrollContainer = ref<HTMLElement | null>(null);
 
@@ -27,7 +24,7 @@ watch(activeMarkerId, async (newId) => {
 </script>
 
 <template>
-  <div class="mlm-sidebar w-96 flex flex-col gap-0 relative">
+  <div class="mlm-sidebar w-96 flex flex-col gap-0 relative font-sans">
     <!-- Editor -->
     <div>
       <MarkerEditor />
@@ -37,21 +34,18 @@ watch(activeMarkerId, async (newId) => {
     <div class="mt-5 flex flex-col gap-3">
       <!-- Section header -->
       <div class="flex items-center justify-between">
-        <div>
-          <p class="text-[11px] font-semibold uppercase tracking-widest text-slate-600 m-0 leading-none mb-0.5">
-            {{ t('admin.total') }} {{ markers.length }}
-          </p>
-          <h3 class="m-0 text-slate-800 text-lg font-black tracking-tight leading-tight">
-            {{ t('admin.locations') }}
-          </h3>
+        <h3 class="text-slate-800 text-lg font-black tracking-tight leading-tight">
+          {{ t('admin.locations') }}
+        </h3>
+        <div class="text-sm font-semibold text-slate-600">
+          {{ t('admin.total') }} {{ markers.length }}
         </div>
-
       </div>
 
       <!-- Marker list -->
       <div
         ref="scrollContainer"
-        class="overflow-y-auto custom-scrollbar flex flex-col gap-1 max-h-56"
+        class="overflow-y-auto custom-scrollbar flex flex-col gap-1 max-h-80"
       >
         <MarkerItem
           v-for="marker in [...markers].reverse()"
@@ -73,7 +67,6 @@ watch(activeMarkerId, async (newId) => {
       <MapStyleSelect v-model="mapStyle" />
       <ShowSearchToggle />
 
-      <DevBadge v-if="isDev" />
     </div>
   </div>
 </template>

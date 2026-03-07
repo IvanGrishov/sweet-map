@@ -6,8 +6,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Manual\n"
 
-msgid "Vue Map"
-msgstr "Карта Vue"
+msgid "Sweet Map"
+msgstr "Sweet Map"
+
+msgid "Interactive Leaflet map with a visual marker editor. Multiple maps, address search, popups with images and links. Shortcode [sweet_map]."
+msgstr "Интерактивная карта Leaflet с визуальным редактором маркеров. Поддержка нескольких карт, поиск адресов, попапы с картинками и ссылками. Шорткод [sweet_map]."
 
 msgid "Map:"
 msgstr "Карта:"
@@ -20,3 +23,78 @@ msgstr "Удалить карту"
 
 msgid "Delete map \"%s\" and all its markers? This cannot be undone."
 msgstr "Удалить карту «%s» и все её маркеры? Это действие нельзя отменить."
+
+msgid "Guide"
+msgstr "Гайд"
+
+msgid "Getting started"
+msgstr "Начало работы"
+
+msgid "Insert the shortcode on any page, post or widget:"
+msgstr "Вставьте шорткод на любую страницу, запись или виджет:"
+
+msgid "Multiple maps"
+msgstr "Несколько карт"
+
+msgid "Each map has its own markers and settings. Create maps in the Maps section and use unique IDs in shortcodes:"
+msgstr "Каждая карта имеет свои маркеры и настройки. Создавайте карты в разделе «Карты» и используйте уникальные ID в шорткодах:"
+
+msgid "Marker features"
+msgstr "Возможности маркеров"
+
+msgid "<strong>Title</strong> — shown as the popup heading"
+msgstr "<strong>Заголовок</strong> — отображается в шапке попапа"
+
+msgid "<strong>Description</strong> — additional text in the popup"
+msgstr "<strong>Описание</strong> — дополнительный текст в попапе"
+
+msgid "<strong>Image</strong> — photo displayed in the popup"
+msgstr "<strong>Картинка</strong> — фото в попапе"
+
+msgid "<strong>Link</strong> — \"More\" button linking to any URL"
+msgstr "<strong>Ссылка</strong> — кнопка «Подробнее» на любой URL"
+
+msgid "<strong>Color</strong> — custom pin color"
+msgstr "<strong>Цвет</strong> — цвет пина маркера"
+
+msgid "<strong>Icon</strong> — upload your own PNG/SVG image as the marker"
+msgstr "<strong>Иконка</strong> — загрузите своё PNG/SVG изображение вместо стандартного пина"
+
+msgid "Map settings"
+msgstr "Настройки карты"
+
+msgid "<strong>Default zoom</strong> — initial zoom level (1–18)"
+msgstr "<strong>Зум по умолчанию</strong> — начальный уровень масштабирования (1–18)"
+
+msgid "<strong>Map height</strong> — height of the map block in pixels"
+msgstr "<strong>Высота карты</strong> — высота блока карты в пикселях"
+
+msgid "<strong>Map style</strong> — OpenStreetMap or Satellite"
+msgstr "<strong>Стиль карты</strong> — OpenStreetMap или Спутник"
+
+msgid "<strong>Show address search</strong> — hide the search bar for site visitors"
+msgstr "<strong>Показывать поиск адресов</strong> — скрыть строку поиска для посетителей сайта"
+
+msgid "How to add a marker"
+msgstr "Как добавить маркер"
+
+msgid "Click anywhere on the map — a draft marker appears"
+msgstr "Кликните в любое место на карте — появится черновик маркера"
+
+msgid "Fill in the title and other fields in the editor panel"
+msgstr "Заполните заголовок и другие поля в панели редактора"
+
+msgid "Drag the pin to adjust position, or type coordinates directly"
+msgstr "Перетащите пин для точного позиционирования или введите координаты вручную"
+
+msgid "Click <strong>Save</strong> (or press Enter) — the marker is saved to the database"
+msgstr "Нажмите <strong>Сохранить</strong> (или Enter) — маркер сохраняется в базу данных"
+
+msgid "Keyboard shortcut"
+msgstr "Горячая клавиша"
+
+msgid "Press <kbd style=\"background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:2px 8px;font-size:13px\">Enter</kbd> while the marker editor is focused to save the current marker quickly."
+msgstr "Нажмите <kbd style=\"background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:2px 8px;font-size:13px\">Enter</kbd> пока редактор маркера активен — маркер сохранится мгновенно."
+
+msgid "Maps"
+msgstr "Карты"

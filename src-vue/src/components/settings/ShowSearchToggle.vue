@@ -37,8 +37,8 @@ watch(showSearch, async () => {
       </div>
     </div>
 
-    <p class="text-sm text-slate-600 mt-2 leading-snug">
+    <div class="text-sm text-slate-600 mt-2 leading-snug">
       {{ showSearch ? t('admin.show_search_on') : t('admin.show_search_off') }}
-    </p>
+    </div>
   </div>
 </template>

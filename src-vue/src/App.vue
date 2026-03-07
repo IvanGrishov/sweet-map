@@ -2,7 +2,6 @@
 import { computed } from 'vue';
 import AdminSettings from './components/settings/AdminSettings.vue';
 import LMap from './components/map/LMap.vue';
-import MapTitle from './components/map/MapTitle.vue';
 import MapSearch from './components/map/MapSearch.vue';
 import ToastNotification from './components/ui/ToastNotification.vue';
 import { useMarkers } from '@/composables/useMarkers';
@@ -18,16 +17,16 @@ const canEdit = computed(() => {
 });
 
 const { mapStyle, mapHeight, showSearch } = useMarkers();
+
 </script>
 
 <template>
   <div
-    class="mlm-plugin-root flex flex-col md:flex-row gap-5 p-4 pt-8 font-sans relative items-start"
+    class="mlm-plugin-root flex flex-col md:flex-row gap-5 relative items-start"
   >
     <AdminSettings v-if="canEdit" />
-    <div class="flex flex-col flex-1 gap-3 min-w-0 md:sticky md:top-8">
+    <div class="flex flex-col flex-1 gap-3 min-w-0 md:sticky md:top-16">
       <div class="mlm-search-header flex flex-col gap-2">
-        <MapTitle :can-edit="canEdit" />
         <MapSearch v-if="canEdit || showSearch" :can-edit="canEdit" />
       </div>
       <LMap :draggable="canEdit" :map-style="mapStyle" :map-height="mapHeight" />

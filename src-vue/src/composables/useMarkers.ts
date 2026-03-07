@@ -11,7 +11,6 @@ const mapCenterTrigger = ref<{ lat: string; lng: string } | null>(null);
 const mapFlyTrigger = ref<{ lat: number; lng: number; zoom?: number } | null>(null);
 const zoom = ref(window.wpData?.zoom || 10);
 const mapStyle = ref(window.wpData?.mapStyle || 'osm');
-const mapTitle = ref(window.wpData?.mapTitle || '');
 const mapHeight = ref(window.wpData?.mapHeight || 500);
 const showSearch = ref<boolean>(window.wpData?.showSearch ?? true);
 const mapId = window.wpData?.map_id || 'default';
@@ -63,9 +62,8 @@ export function useMarkers() {
           markers: markers.value,
           zoom: Number(zoom.value),
           map_style: mapStyle.value,
-          map_title: mapTitle.value,
           map_height: Number(mapHeight.value),
-          show_search: showSearch.value
+          show_search: showSearch.value,
         })
       });
       if (!response.ok) throw new Error();
@@ -136,7 +134,6 @@ export function useMarkers() {
     mapFlyTrigger,
     zoom,
     mapStyle,
-    mapTitle,
     mapHeight,
     showSearch,
     draftMarker,

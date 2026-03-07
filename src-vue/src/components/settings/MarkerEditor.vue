@@ -38,9 +38,9 @@ const onEnter = (e: KeyboardEvent) => {
 <template>
   <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-4" @keydown.enter="onEnter">
     <!-- Mode label -->
-    <p class="text-xs font-semibold uppercase tracking-widest text-indigo-500 m-0 leading-none">
+    <div class="text-xs font-semibold uppercase tracking-widest text-indigo-500 leading-none">
       {{ draftIsNew ? t('admin.add_marker_title') : t('admin.edit_marker_title') }}
-    </p>
+    </div>
 
     <!-- Popup content group -->
     <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col gap-3.5">
