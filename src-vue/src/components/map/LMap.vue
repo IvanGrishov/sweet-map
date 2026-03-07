@@ -2,6 +2,9 @@
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { useMarkers } from '@/composables/useMarkers';
 import { MAP_LAYERS } from '@/constants';
 import { MarkerData } from '@/types';
@@ -18,7 +21,6 @@ const {
   markers,
   activeMarkerId,
   mapCenterTrigger,
-  centerOnMarker,
   zoom,
   draftMarker,
   draftIsNew,
@@ -28,6 +30,7 @@ const {
 
 const mapContainer = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;
+let clusterGroup: L.MarkerClusterGroup | null = null;
 const leafletMarkers = new Map<string, L.Marker>();
 let draftLeafletMarker: L.Marker | null = null;
 
@@ -60,25 +63,25 @@ const createMarkerIcon = (data: MarkerData): L.DivIcon => {
 };
 
 const syncMarkers = () => {
-  if (!map) return;
+  if (!map || !clusterGroup) return;
 
-  // When editing an existing marker, hide the original leaflet marker
   const draftId = !draftIsNew.value && draftMarker.value ? draftMarker.value.id : null;
 
+  // Remove deleted markers
   const storeIds = new Set(markers.value.map((m) => m.id));
   leafletMarkers.forEach((leafletMarker, id) => {
     if (!storeIds.has(id)) {
-      map?.removeLayer(leafletMarker);
+      clusterGroup!.removeLayer(leafletMarker);
       leafletMarkers.delete(id);
     }
   });
 
   markers.value.forEach((data) => {
-    // Skip the marker being edited — it's shown as the draft marker
+    // Skip marker being edited — shown as draft
     if (data.id === draftId) {
       const existing = leafletMarkers.get(data.id);
       if (existing) {
-        map?.removeLayer(existing);
+        clusterGroup!.removeLayer(existing);
         leafletMarkers.delete(data.id);
       }
       return;
@@ -90,7 +93,7 @@ const syncMarkers = () => {
       const newMarker = L.marker(position, {
         icon: createMarkerIcon(data),
         draggable: props.draggable
-      }).addTo(map!);
+      });
 
       newMarker.bindPopup(makePopupHtml(data), { closeButton: false });
 
@@ -104,6 +107,7 @@ const syncMarkers = () => {
         data.lng = pos.lng.toFixed(6);
       });
 
+      clusterGroup!.addLayer(newMarker);
       leafletMarkers.set(data.id, newMarker);
     } else {
       const existingMarker = leafletMarkers.get(data.id);
@@ -135,6 +139,15 @@ onMounted(async () => {
 
   updateMapStyle(props.mapStyle);
 
+  // Cluster group for regular markers
+  clusterGroup = L.markerClusterGroup({
+    showCoverageOnHover: false,
+    maxClusterRadius: 60,
+    spiderfyOnMaxZoom: true,
+    zoomToBoundsOnClick: true
+  });
+  map.addLayer(clusterGroup);
+
   map.on('click', (e: L.LeafletMouseEvent) => {
     if (!props.draggable) return;
     if (draftMarker.value) {
@@ -153,13 +166,13 @@ onMounted(async () => {
 
   syncMarkers();
 
-  // Create the always-present draft marker
+  // Draft marker — always on map directly (not in cluster)
   const initPos: L.LatLngExpression = [Number(draftMarker.value.lat), Number(draftMarker.value.lng)];
   draftLeafletMarker = L.marker(initPos, {
     icon: createMarkerIcon(draftMarker.value),
     draggable: true,
     opacity: 0.75
-  }).addTo(map!);
+  }).addTo(map);
   draftLeafletMarker.bindPopup(makePopupHtml(draftMarker.value), { closeButton: false });
   draftLeafletMarker.on('dragend', () => {
     const p = draftLeafletMarker!.getLatLng();
@@ -170,7 +183,7 @@ onMounted(async () => {
   setTimeout(() => map?.invalidateSize(), 400);
 });
 
-// Draft marker on the map — draftMarker is always non-null
+// Draft marker watcher
 watch(
   draftMarker,
   (draft) => {
@@ -187,7 +200,7 @@ watch(
   { deep: true }
 );
 
-// Watch за триггером центрирования
+// Center + open popup on active marker
 watch(mapCenterTrigger, (coords) => {
   if (!coords || !map) return;
   const lat = Number(coords.lat);
@@ -196,11 +209,11 @@ watch(mapCenterTrigger, (coords) => {
 
   map.flyTo([lat, lng], map.getZoom(), { animate: true, duration: 0.3 });
 
-  // nextTick: ждём, пока syncMarkers уберёт оригинал и черновик встанет на место
   nextTick(() => {
     const regular = leafletMarkers.get(activeMarkerId.value || '');
     if (regular) {
-      regular.openPopup();
+      // Unspiderfy / zoom out of cluster so popup is visible
+      clusterGroup?.zoomToShowLayer(regular, () => regular.openPopup());
     } else if (draftLeafletMarker && !draftIsNew.value) {
       draftLeafletMarker.openPopup();
     }
@@ -213,35 +226,23 @@ onUnmounted(() => {
   if (map) {
     map.remove();
     map = null;
+    clusterGroup = null;
     draftLeafletMarker = null;
   }
 });
 
 watch(zoom, (newZoom) => {
-  if (map) {
-    map.setZoom(Number(newZoom));
-  }
+  if (map) map.setZoom(Number(newZoom));
 });
 
 const updateMapStyle = (style: string) => {
   if (!map) return;
-
-  if (currentTileLayer) {
-    map.removeLayer(currentTileLayer);
-  }
-
+  if (currentTileLayer) map.removeLayer(currentTileLayer);
   const url = MAP_LAYERS[style as keyof typeof MAP_LAYERS] || MAP_LAYERS.osm;
-  currentTileLayer = L.tileLayer(url, {
-    attribution: '&copy; OpenStreetMap'
-  }).addTo(map);
+  currentTileLayer = L.tileLayer(url, { attribution: '&copy; OpenStreetMap' }).addTo(map);
 };
 
-watch(
-  () => props.mapStyle,
-  (newStyle) => {
-    updateMapStyle(newStyle);
-  }
-);
+watch(() => props.mapStyle, updateMapStyle);
 </script>
 
 <template>
@@ -266,19 +267,56 @@ watch(
   border: none !important;
 }
 
+/* Cluster styling */
+:deep(.marker-cluster) {
+  background-clip: padding-box;
+}
+:deep(.marker-cluster div) {
+  width: 34px;
+  height: 34px;
+  margin: 3px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+:deep(.marker-cluster-small) {
+  background-color: rgba(99, 102, 241, 0.15);
+}
+:deep(.marker-cluster-small div) {
+  background-color: rgba(99, 102, 241, 0.75);
+  color: #fff;
+}
+:deep(.marker-cluster-medium) {
+  background-color: rgba(79, 70, 229, 0.15);
+}
+:deep(.marker-cluster-medium div) {
+  background-color: rgba(79, 70, 229, 0.8);
+  color: #fff;
+}
+:deep(.marker-cluster-large) {
+  background-color: rgba(67, 56, 202, 0.15);
+}
+:deep(.marker-cluster-large div) {
+  background-color: rgba(67, 56, 202, 0.85);
+  color: #fff;
+}
+
 :deep(.leaflet-popup-content-wrapper) {
   border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   padding: 4px;
   font-family: inherit;
 }
-
 :deep(.leaflet-popup-content) {
   margin: 8px 12px;
   font-size: 14px;
   color: #1e293b;
 }
-
 :deep(.leaflet-popup-tip-container) {
   display: none;
 }
