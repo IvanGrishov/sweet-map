@@ -96,11 +96,9 @@ Yes — paste the shortcode `[sweet_map]` in any page builder that supports shor
 
 == Screenshots ==
 
-1. Map editor with sidebar — add and edit markers visually
-2. Marker popup with photo, description and link button
-3. Gutenberg block in the page editor — map selector in sidebar
-4. Address search with location suggestions
-5. Map settings — zoom, height, style, search visibility
+1. Map editor — marker form with address search and an open popup on the map
+2. Sidebar with marker list, map settings (zoom, height, style, search toggle) and an open popup
+3. Gutenberg block — search "Sweet Map" in the block inserter to add a map to any page
 
 == Changelog ==
 
