@@ -1,5 +1,5 @@
 === Sweet Map ===
-Contributors: your-wp-username
+Contributors: ivangrishov
 Tags: map, leaflet, interactive map, markers, address search
 Requires at least: 5.8
 Tested up to: 6.7
