@@ -20,6 +20,8 @@ interface Props {
 const props = defineProps<Props>();
 let currentTileLayer: L.TileLayer | null = null;
 
+const { t } = useI18n();
+
 const {
   markers,
   activeMarkerId,
@@ -69,7 +71,7 @@ const makePopupHtml = (data: MarkerData) => {
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
             <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
           </svg>
-          Подробнее
+          ${t('admin.popup_more')}
         </a>
       </div>`;
     }
@@ -82,22 +84,22 @@ const makePopupHtml = (data: MarkerData) => {
 const createMarkerIcon = (data: MarkerData): L.DivIcon => {
   if (data.icon) {
     return L.divIcon({
-      html: `<img src="${data.icon}" style="width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))" />`,
+      html: `<img src="${data.icon}" style="width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))" />`,
       className: 'mlm-custom-marker',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-      popupAnchor: [0, -42]
+      iconSize: [48, 48],
+      iconAnchor: [24, 48],
+      popupAnchor: [0, -50]
     });
   }
   const color = data.color || '#4f46e5';
   return L.divIcon({
-    html: `<svg width="30" height="42" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
+    html: `<svg width="38" height="53" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
             <path d="M12 21C16 17 20 13.4183 20 9C20 4.58172 16.4183 1 12 1C7.58172 1 4 4.58172 4 9C4 13.4183 8 17 12 21Z" fill="${color}" stroke="white" stroke-width="2"/>
             <circle cx="12" cy="9" r="3" fill="white"/></svg>`,
     className: 'mlm-custom-marker',
-    iconSize: [30, 42],
-    iconAnchor: [15, 42],
-    popupAnchor: [0, -40]
+    iconSize: [38, 53],
+    iconAnchor: [19, 53],
+    popupAnchor: [0, -51]
   });
 };
 
@@ -291,8 +293,6 @@ const locateUser = () => {
   map.locate({ setView: true, maxZoom: 15 });
   map.once('locationerror', () => toast.show(t('admin.location_error'), 3000));
 };
-
-const { t } = useI18n();
 
 const fitAllMarkers = () => {
   if (!map || leafletMarkers.size === 0) return;
