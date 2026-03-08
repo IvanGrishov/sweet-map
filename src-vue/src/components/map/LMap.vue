@@ -136,7 +136,9 @@ const syncMarkers = () => {
         draggable: props.draggable
       });
 
-      newMarker.bindPopup(makePopupHtml(data), { closeButton: false });
+      if (data.showPopup !== false) {
+        newMarker.bindPopup(makePopupHtml(data), { closeButton: false });
+      }
 
       newMarker.on('click', () => {
         openEditMarker(data.id);
@@ -157,7 +159,15 @@ const syncMarkers = () => {
         if (currentPos.lat !== Number(data.lat) || currentPos.lng !== Number(data.lng)) {
           existingMarker.setLatLng(position);
         }
-        existingMarker.setPopupContent(makePopupHtml(data));
+        if (data.showPopup !== false) {
+          if (!existingMarker.getPopup()) {
+            existingMarker.bindPopup(makePopupHtml(data), { closeButton: false });
+          } else {
+            existingMarker.setPopupContent(makePopupHtml(data));
+          }
+        } else {
+          existingMarker.unbindPopup();
+        }
         existingMarker.setIcon(createMarkerIcon(data));
       }
     }
@@ -215,7 +225,9 @@ onMounted(async () => {
     draggable: true,
     opacity: 0.75
   }).addTo(map);
-  draftLeafletMarker.bindPopup(makePopupHtml(draftMarker.value), { closeButton: false });
+  if (draftMarker.value.showPopup !== false) {
+    draftLeafletMarker.bindPopup(makePopupHtml(draftMarker.value), { closeButton: false });
+  }
   draftLeafletMarker.on('dragend', () => {
     const p = draftLeafletMarker!.getLatLng();
     draftMarker.value.lat = p.lat.toFixed(6);
@@ -236,7 +248,15 @@ watch(
       draftLeafletMarker.setLatLng(pos);
     }
     draftLeafletMarker.setIcon(createMarkerIcon(draft));
-    draftLeafletMarker.setPopupContent(makePopupHtml(draft));
+    if (draft.showPopup !== false) {
+      if (!draftLeafletMarker.getPopup()) {
+        draftLeafletMarker.bindPopup(makePopupHtml(draft), { closeButton: false });
+      } else {
+        draftLeafletMarker.setPopupContent(makePopupHtml(draft));
+      }
+    } else {
+      draftLeafletMarker.unbindPopup();
+    }
     syncMarkers();
   },
   { deep: true }

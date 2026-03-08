@@ -243,6 +243,7 @@ function mlm_handle_save_markers($request) {
       'icon'        => sanitize_text_field($m['icon']  ?? ''),
       'image'       => sanitize_text_field($m['image'] ?? ''),
       'link'        => esc_url_raw($m['link'] ?? ''),
+      'showPopup'   => isset($m['showPopup']) ? (bool)$m['showPopup'] : true,
     );
   }
 

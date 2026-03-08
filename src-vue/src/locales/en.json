@@ -45,6 +45,8 @@
     "link_url_placeholder": "https://example.com",
     "popup_content": "Popup",
     "popup_more": "More",
+    "popup_show": "Show popup",
+    "popup_hide": "Hide popup",
     "position": "Position",
     "show_search": "Search on site",
     "show_search_on": "Visitors can search for addresses on the map",

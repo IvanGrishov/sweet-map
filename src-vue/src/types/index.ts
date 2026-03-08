@@ -9,8 +9,9 @@ export interface MarkerData {
   description?: string;
   color?: string;  // hex, e.g. '#4f46e5'
   icon?: string;   // base64 data URL, replaces the pin completely
-  image?: string;  // URL of popup image
-  link?: string;   // external link shown in popup
+  image?: string;    // URL of popup image
+  link?: string;     // external link shown in popup
+  showPopup?: boolean; // false = popup disabled for this marker
 }
 
 export interface WpData {
