@@ -98,3 +98,9 @@ msgstr "Нажмите <kbd style=\"background:#f1f5f9;border:1px solid #e2e8f0;
 
 msgid "Maps"
 msgstr "Карты"
+
+msgid "Gutenberg block"
+msgstr "Блок Gutenberg"
+
+msgid "In the block editor, click <strong>+</strong>, search \"Sweet Map\" and add the block. Select a map from the sidebar panel on the right — the full interactive map will appear on your page."
+msgstr "В блочном редакторе нажмите <strong>+</strong>, найдите «Sweet Map» и добавьте блок. Выберите карту в боковой панели справа — полноценная интерактивная карта появится на вашей странице."

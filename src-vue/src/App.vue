@@ -1,23 +1,36 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { inject, provide, computed } from 'vue';
 import AdminSettings from './components/settings/AdminSettings.vue';
 import LMap from './components/map/LMap.vue';
 import MapSearch from './components/map/MapSearch.vue';
 import ToastNotification from './components/ui/ToastNotification.vue';
-import { useMarkers } from '@/composables/useMarkers';
+import { createMarkersStore, MARKERS_STORE_KEY } from '@/composables/useMarkers';
+import type { WpData } from '@/types';
 
 const isDev = import.meta.env.DEV;
 
+const wpData = inject<WpData>('wpData') ?? {
+  rest_url: '',
+  nonce: '',
+  map_id: 'default',
+  can_edit: isDev,
+  coords: [],
+  zoom: 10,
+  mapStyle: 'osm',
+  mapHeight: 500,
+  showSearch: true,
+  locale: 'en',
+};
+
+const store = createMarkersStore(wpData);
+provide(MARKERS_STORE_KEY, store);
+
 const canEdit = computed(() => {
   if (isDev) return true;
-
-  const val = window.wpData?.can_edit;
-
-  return String(val) === '1' || String(val) === 'true';
+  return String(wpData.can_edit) === '1' || String(wpData.can_edit) === 'true';
 });
 
-const { mapStyle, mapHeight, showSearch } = useMarkers();
-
+const { mapStyle, mapHeight, showSearch } = store;
 </script>
 
 <template>

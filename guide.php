@@ -18,6 +18,9 @@ function mlm_render_docs() {
       <p class="mlm-guide__text"><?= __('Insert the shortcode on any page, post or widget:', 'map') ?></p>
       <pre class="mlm-guide__pre">[sweet_map]</pre>
 
+      <h2 class="mlm-guide__section-title">🧩 <?= __('Gutenberg block', 'map') ?></h2>
+      <p class="mlm-guide__text"><?= __('In the block editor, click <strong>+</strong>, search "Sweet Map" and add the block. Select a map from the sidebar panel on the right — the full interactive map will appear on your page.', 'map') ?></p>
+
       <h2 class="mlm-guide__section-title">🗺️ <?= __('Multiple maps', 'map') ?></h2>
       <p class="mlm-guide__text"><?= __('Each map has its own markers and settings. Create maps in the Maps section and use unique IDs in shortcodes:', 'map') ?></p>
       <pre class="mlm-guide__pre">[sweet_map id="offices"]

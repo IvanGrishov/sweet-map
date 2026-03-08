@@ -12,3 +12,16 @@ export interface MarkerData {
   image?: string;  // URL of popup image
   link?: string;   // external link shown in popup
 }
+
+export interface WpData {
+  rest_url: string;
+  nonce: string;
+  map_id: string;
+  can_edit: boolean | number | string;
+  coords: MarkerData[];
+  zoom: number;
+  mapStyle: string;
+  mapHeight: number;
+  showSearch: boolean;
+  locale?: string;
+}

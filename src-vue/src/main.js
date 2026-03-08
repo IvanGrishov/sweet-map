@@ -6,19 +6,23 @@ import App from './App.vue';
 import ru from './locales/ru.json';
 import en from './locales/en.json';
 
-const wpLocale = window.wpData?.locale?.split('_')[0] || 'ru';
+document.querySelectorAll('.mlm-map-root').forEach((el) => {
+  const mapId = el.dataset.mapId;
+  const wpData = window.sweetMapData?.[mapId]
+    ?? (window.wpData?.map_id === mapId ? window.wpData : null);
+  if (!wpData) return;
 
-const i18n = createI18n({
-  legacy: false,
-  locale: wpLocale,
-  fallbackLocale: 'en',
-  messages: {
-    ru,
-    en
-  }
+  const locale = wpData.locale?.split('_')[0] || 'en';
+
+  const i18n = createI18n({
+    legacy: false,
+    locale,
+    fallbackLocale: 'en',
+    messages: { ru, en }
+  });
+
+  const app = createApp(App);
+  app.provide('wpData', wpData);
+  app.use(i18n);
+  app.mount(el);
 });
-
-const app = createApp(App);
-
-app.use(i18n);
-app.mount('#mlm-map-admin-root');

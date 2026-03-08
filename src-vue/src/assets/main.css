@@ -6,13 +6,13 @@
 }
 
 /* Сбрасываем max-width — WP навязывает его через .is-layout-constrained */
-#mlm-map-admin-root,
-#mlm-map-admin-root * {
+.mlm-map-root,
+.mlm-map-root * {
   max-width: none !important;
 }
 
 /* Точечный сброс auto-margin от WP layout system */
-#mlm-map-admin-root :where(.is-layout-constrained) > * {
+.mlm-map-root :where(.is-layout-constrained) > * {
   margin-left: unset !important;
   margin-right: unset !important;
 }
@@ -21,20 +21,20 @@
    Защитный reset от тем и плагинов клиентов.
    Семантические теги (p, h*, ul, li, a) часто имеют
    глобальные стили в темах. Нейтрализуем их внутри рута.
-   Specificity (#id + tag) = (0,1,0,1) — бьёт любой
+   Specificity (class + tag) — бьёт любой
    незаслоенный тег-селектор (0,0,0,1) темы/WP.
    ------------------------------------------------------- */
-#mlm-map-admin-root p,
-#mlm-map-admin-root h1,
-#mlm-map-admin-root h2,
-#mlm-map-admin-root h3,
-#mlm-map-admin-root h4,
-#mlm-map-admin-root h5,
-#mlm-map-admin-root h6,
-#mlm-map-admin-root ul,
-#mlm-map-admin-root ol,
-#mlm-map-admin-root li,
-#mlm-map-admin-root a {
+.mlm-map-root p,
+.mlm-map-root h1,
+.mlm-map-root h2,
+.mlm-map-root h3,
+.mlm-map-root h4,
+.mlm-map-root h5,
+.mlm-map-root h6,
+.mlm-map-root ul,
+.mlm-map-root ol,
+.mlm-map-root li,
+.mlm-map-root a {
   margin: 0;
   padding: 0;
   font-size: inherit;
@@ -47,25 +47,25 @@
 
 /* -------------------------------------------------------
    WP admin compatibility: unlayered rules beat @layer but
-   still respect cascade — using ID specificity to win over
+   still respect cascade — using class specificity to win over
    WP's own input styles (which are also unlayered).
    ------------------------------------------------------- */
 
-/* Search container — ограничиваем ширину (специфичность ID+class бьёт ID+*) */
-#mlm-map-admin-root .mlm-search-wrap {
+/* Search container — ограничиваем ширину */
+.mlm-map-root .mlm-search-wrap {
   max-width: 36rem !important;
   width: 100% !important;
 }
 
 /* Dropdown items */
-#mlm-map-admin-root .mlm-search-drop li {
+.mlm-map-root .mlm-search-drop li {
   font-size: 15px !important;
   padding: 12px 16px !important;
   line-height: 1.5 !important;
 }
 
 /* Search input — inside styled parent, needs no own border */
-#mlm-map-admin-root .mlm-search-input {
+.mlm-map-root .mlm-search-input {
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -76,9 +76,9 @@
   color: #334155 !important;
   font-family: inherit !important;
 }
-#mlm-map-admin-root .mlm-search-input::placeholder      { color: #94a3b8 !important; }
-#mlm-map-admin-root .mlm-search-input:focus,
-#mlm-map-admin-root .mlm-search-input:focus-visible     { outline: none !important; box-shadow: none !important; }
+.mlm-map-root .mlm-search-input::placeholder      { color: #94a3b8 !important; }
+.mlm-map-root .mlm-search-input:focus,
+.mlm-map-root .mlm-search-input:focus-visible     { outline: none !important; box-shadow: none !important; }
 
 @layer base {
   button,

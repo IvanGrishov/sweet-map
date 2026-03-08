@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Sweet Map
- * Version: 2.6
+ * Version: 1.0
  * Description: Interactive Leaflet map with a visual marker editor. Multiple maps, address search, popups with images and links. Shortcode [sweet_map].
  * Text Domain: map
  * Domain Path: /languages
@@ -9,12 +9,21 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('MLM_VUE_VERSION', '2.6');
+define('MLM_VUE_VERSION', '1.0');
 define('MLM_VUE_URL', plugin_dir_url(__FILE__));
 define('MLM_VUE_PATH', plugin_dir_path(__FILE__));
 
 add_action('init', function() {
   load_plugin_textdomain('map', false, dirname(plugin_basename(__FILE__)) . '/languages');
+});
+
+add_action('init', function () {
+  register_block_type('sweet-map/map', [
+    'render_callback' => 'mlm_render_block',
+    'attributes' => [
+      'mapId' => ['type' => 'string', 'default' => 'default'],
+    ],
+  ]);
 });
 
 
@@ -94,6 +103,18 @@ function mlm_suffix($map_id) {
 }
 
 /**
+ * Рендер Gutenberg-блока
+ */
+function mlm_render_block($attrs) {
+  $map_id = sanitize_key($attrs['mapId'] ?? 'default');
+  mlm_enqueue_assets($map_id);
+  return '<div class="mlm-map-root" data-map-id="' . esc_attr($map_id) . '"></div>';
+}
+
+// Накопитель данных карт для вывода в футере
+$GLOBALS['mlm_map_data'] = [];
+
+/**
  * Подключение ассетов
  */
 function mlm_enqueue_assets($map_id = 'default') {
@@ -101,26 +122,37 @@ function mlm_enqueue_assets($map_id = 'default') {
   $dist_path = MLM_VUE_PATH . 'assets/dist/';
   $s         = mlm_suffix($map_id);
 
-  $css_file = file_exists($dist_path . 'index.css') ? 'index.css' : 'style.css';
-  if (file_exists($dist_path . $css_file)) {
-    wp_enqueue_style('mlm-vue-style', $dist_url . $css_file, array(), MLM_VUE_VERSION);
+  if (!wp_script_is('mlm-vue-app', 'enqueued')) {
+    $css_file = file_exists($dist_path . 'index.css') ? 'index.css' : 'style.css';
+    if (file_exists($dist_path . $css_file)) {
+      wp_enqueue_style('mlm-vue-style', $dist_url . $css_file, array(), MLM_VUE_VERSION);
+    }
+    wp_enqueue_script('mlm-vue-app', $dist_url . 'index.js', array(), MLM_VUE_VERSION, true);
   }
 
-  wp_enqueue_script('mlm-vue-app', $dist_url . 'index.js', array(), MLM_VUE_VERSION, true);
-
-  wp_localize_script('mlm-vue-app', 'wpData', array(
-    'rest_url'  => esc_url_raw(rest_url('mlm/v1')),
-    'nonce'     => wp_create_nonce('wp_rest'),
-    'map_id'    => $map_id,
-    'coords'    => get_option('mlm_coords'     . $s, array()),
-    'locale'    => get_locale(),
-    'can_edit'  => is_admin() && current_user_can('manage_options'),
-    'zoom'      => (int) get_option('mlm_map_zoom'   . $s, 13),
-    'mapStyle'  => get_option('mlm_map_style'  . $s, 'osm'),
+  $GLOBALS['mlm_map_data'][$map_id] = array(
+    'rest_url'   => esc_url_raw(rest_url('mlm/v1')),
+    'nonce'      => wp_create_nonce('wp_rest'),
+    'map_id'     => $map_id,
+    'coords'     => get_option('mlm_coords'      . $s, array()),
+    'locale'     => get_locale(),
+    'can_edit'   => is_admin() && current_user_can('manage_options'),
+    'zoom'       => (int) get_option('mlm_map_zoom'   . $s, 13),
+    'mapStyle'   => get_option('mlm_map_style'  . $s, 'osm'),
     'mapHeight'  => (int) get_option('mlm_map_height'  . $s, 500),
     'showSearch' => (bool) get_option('mlm_show_search' . $s, true),
-  ));
+  );
 }
+
+/**
+ * Вывод данных всех карт в футере одним тегом <script>
+ */
+function mlm_output_map_data() {
+  if (empty($GLOBALS['mlm_map_data'])) return;
+  echo '<script>window.sweetMapData=' . wp_json_encode($GLOBALS['mlm_map_data']) . ';</script>' . "\n";
+}
+add_action('wp_footer',    'mlm_output_map_data', 5);
+add_action('admin_footer', 'mlm_output_map_data', 5);
 
 /**
  * Загрузка только на нужной странице админки
@@ -131,6 +163,23 @@ add_action('admin_enqueue_scripts', function ($hook) {
     mlm_enqueue_assets($map_id);
     wp_enqueue_style('mlm-admin', MLM_VUE_URL . 'assets/admin.css', [], MLM_VUE_VERSION);
   }
+});
+
+/**
+ * Ассеты для блочного редактора (Gutenberg)
+ */
+add_action('enqueue_block_editor_assets', function () {
+  $maps = get_option('mlm_map_ids', ['default']);
+  wp_enqueue_script(
+    'sweet-map-block',
+    MLM_VUE_URL . 'blocks/index.js',
+    ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n'],
+    MLM_VUE_VERSION,
+    true
+  );
+  wp_localize_script('sweet-map-block', 'sweetMapBlockData', [
+    'maps' => $maps,
+  ]);
 });
 
 /**
@@ -148,7 +197,7 @@ add_shortcode('sweet_map', function ($atts) {
   $atts   = shortcode_atts(['id' => 'default'], $atts, 'sweet_map');
   $map_id = sanitize_key($atts['id']);
   mlm_enqueue_assets($map_id);
-  return '<div id="mlm-map-admin-root"></div>';
+  return '<div class="mlm-map-root" data-map-id="' . esc_attr($map_id) . '"></div>';
 });
 
 /**
@@ -286,7 +335,7 @@ function mlm_render_page() {
       <?php endif; ?>
     </div>
 
-    <div id="mlm-map-admin-root">
+    <div class="mlm-map-root" data-map-id="<?= esc_attr($map_id) ?>">
       <p>Загрузка карты...</p>
     </div>
   </div>

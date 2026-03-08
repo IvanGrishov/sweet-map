@@ -9,6 +9,15 @@
   <link rel="stylesheet" crossorigin href="/index.css">
 </head>
 <body>
-<div id="mlm-map-admin-root"></div>
+<script>
+  window.sweetMapData = {
+    "default": {
+      "rest_url": "", "nonce": "dev", "map_id": "default",
+      "can_edit": true, "coords": [], "zoom": 10,
+      "mapStyle": "osm", "mapHeight": 500, "showSearch": true, "locale": "en"
+    }
+  };
+</script>
+<div class="mlm-map-root" data-map-id="default"></div>
 </body>
 </html>
