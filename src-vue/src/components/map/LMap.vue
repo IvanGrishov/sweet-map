@@ -186,7 +186,8 @@ onMounted(async () => {
 
   map = L.map(mapContainer.value, {
     tap: false,
-    zoomControl: true
+    zoomControl: true,
+    scrollWheelZoom: false
   }).setView(startCoords, zoom.value);
 
   updateMapStyle(props.mapStyle);
@@ -271,7 +272,11 @@ watch(mapCenterTrigger, (coords) => {
   const lng = Number(coords.lng);
   if (isNaN(lat) || isNaN(lng)) return;
 
-  map.flyTo([lat, lng], map.getZoom(), { animate: true, duration: 0.3 });
+  // Offset center upward by 120px so marker sits lower and popup has room above
+  const zoom = map.getZoom();
+  const targetPx = map.project(L.latLng(lat, lng), zoom);
+  const centerLatLng = map.unproject(L.point(targetPx.x, targetPx.y - 120), zoom);
+  map.flyTo(centerLatLng, zoom, { animate: true, duration: 0.3 });
 
   nextTick(() => {
     const regular = leafletMarkers.get(activeMarkerId.value || '');
