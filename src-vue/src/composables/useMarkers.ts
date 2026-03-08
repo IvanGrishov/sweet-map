@@ -13,7 +13,7 @@ export function createMarkersStore(data: WpData) {
   const mapFlyTrigger = ref<{ lat: number; lng: number; zoom?: number } | null>(null);
   const zoom = ref(data.zoom || 10);
   const mapStyle = ref(data.mapStyle || 'osm');
-  const mapHeight = ref(data.mapHeight || 500);
+  const mapHeight = ref(data.mapHeight || 640);
   const showSearch = ref<boolean>(data.showSearch ?? true);
   const mapId = data.map_id || 'default';
 

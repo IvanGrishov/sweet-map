@@ -17,7 +17,7 @@ const wpData = inject<WpData>('wpData') ?? {
   coords: [],
   zoom: 10,
   mapStyle: 'osm',
-  mapHeight: 500,
+  mapHeight: 640,
   showSearch: true,
   locale: 'en',
 };

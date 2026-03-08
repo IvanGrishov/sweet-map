@@ -143,7 +143,7 @@ function mlm_enqueue_assets($map_id = 'default') {
     'can_edit'   => is_admin() && current_user_can('manage_options'),
     'zoom'       => (int) get_option('mlm_map_zoom'   . $s, 13),
     'mapStyle'   => get_option('mlm_map_style'  . $s, 'osm'),
-    'mapHeight'  => (int) get_option('mlm_map_height'  . $s, 500),
+    'mapHeight'  => (int) get_option('mlm_map_height'  . $s, 640),
     'showSearch' => (bool) get_option('mlm_show_search' . $s, true),
   );
 }
