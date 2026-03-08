@@ -2,8 +2,7 @@
 /**
  * Plugin Name: Sweet Map
  * Version: 1.0
- * Author: Your Name
- * Author URI: https://yoursite.com
+ * Author: Ivan Grishov
  * Plugin URI: https://wordpress.org/plugins/sweet-map/
  * Description: Interactive Leaflet map with a visual marker editor. Multiple maps, address search, popups with images and links. Shortcode [sweet_map].
  * License: GPL v2 or later
