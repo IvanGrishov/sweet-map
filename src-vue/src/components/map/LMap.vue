@@ -218,21 +218,23 @@ onMounted(async () => {
 
   syncMarkers();
 
-  // Draft marker — always on map directly (not in cluster)
-  const initPos: L.LatLngExpression = [Number(draftMarker.value.lat), Number(draftMarker.value.lng)];
-  draftLeafletMarker = L.marker(initPos, {
-    icon: createMarkerIcon(draftMarker.value),
-    draggable: true,
-    opacity: 0.75
-  }).addTo(map);
-  if (draftMarker.value.showPopup !== false) {
-    draftLeafletMarker.bindPopup(makePopupHtml(draftMarker.value), { closeButton: false });
+  // Draft marker — only in admin (draggable) mode
+  if (props.draggable) {
+    const initPos: L.LatLngExpression = [Number(draftMarker.value.lat), Number(draftMarker.value.lng)];
+    draftLeafletMarker = L.marker(initPos, {
+      icon: createMarkerIcon(draftMarker.value),
+      draggable: true,
+      opacity: 0.75
+    }).addTo(map);
+    if (draftMarker.value.showPopup !== false) {
+      draftLeafletMarker.bindPopup(makePopupHtml(draftMarker.value), { closeButton: false });
+    }
+    draftLeafletMarker.on('dragend', () => {
+      const p = draftLeafletMarker!.getLatLng();
+      draftMarker.value.lat = p.lat.toFixed(6);
+      draftMarker.value.lng = p.lng.toFixed(6);
+    });
   }
-  draftLeafletMarker.on('dragend', () => {
-    const p = draftLeafletMarker!.getLatLng();
-    draftMarker.value.lat = p.lat.toFixed(6);
-    draftMarker.value.lng = p.lng.toFixed(6);
-  });
 
   setTimeout(() => map?.invalidateSize(), 400);
 });
