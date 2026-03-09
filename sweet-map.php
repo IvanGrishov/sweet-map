@@ -7,7 +7,7 @@
  * Description: Interactive Leaflet map with a visual marker editor. Multiple maps, address search, popups with images and links. Shortcode [sweet_map].
  * Requires at least: 5.8
  * Requires PHP: 7.4
- * Tested up to: 6.7
+ * Tested up to: 6.9
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: sweet-map
@@ -19,10 +19,6 @@ if (!defined('ABSPATH')) exit;
 define('MLM_VUE_VERSION', '1.0');
 define('MLM_VUE_URL', plugin_dir_url(__FILE__));
 define('MLM_VUE_PATH', plugin_dir_path(__FILE__));
-
-add_action('init', function() {
-  load_plugin_textdomain('sweet-map', false, dirname(plugin_basename(__FILE__)) . '/languages');
-});
 
 add_action('init', function () {
   register_block_type('sweet-map/map', [
@@ -38,7 +34,7 @@ add_action('init', function () {
  * Обработка создания новой карты (до вывода HTML)
  */
 add_action('admin_init', function () {
-  if (($_GET['page'] ?? '') !== 'mlm-settings-page' || !current_user_can('manage_options')) return;
+  if (sanitize_text_field(wp_unslash($_GET['page'] ?? '')) !== 'mlm-settings-page' || !current_user_can('manage_options')) return;
 
   // Создание новой карты
   if (isset($_GET['create_map'], $_GET['new_map_id'])) {
@@ -50,7 +46,7 @@ add_action('admin_init', function () {
       $map_ids[] = $new_id;
       update_option('mlm_map_ids', $map_ids);
     }
-    wp_redirect(admin_url('admin.php?page=mlm-settings-page&map_id=' . urlencode($new_id)));
+    wp_safe_redirect(admin_url('admin.php?page=mlm-settings-page&map_id=' . urlencode($new_id)));
     exit;
   }
 
@@ -69,7 +65,7 @@ add_action('admin_init', function () {
     $map_ids = get_option('mlm_map_ids', ['default']);
     $map_ids = array_values(array_filter($map_ids, fn($id) => $id !== $del_id));
     update_option('mlm_map_ids', $map_ids);
-    wp_redirect(admin_url('admin.php?page=mlm-settings-page&map_id=default'));
+    wp_safe_redirect(admin_url('admin.php?page=mlm-settings-page&map_id=default'));
     exit;
   }
 });
@@ -158,19 +154,32 @@ function mlm_enqueue_assets($map_id = 'default') {
  */
 function mlm_output_map_data() {
   if (empty($GLOBALS['mlm_map_data'])) return;
-  echo '<script>window.sweetMapData=' . wp_json_encode($GLOBALS['mlm_map_data']) . ';</script>' . "\n";
+  wp_add_inline_script('mlm-vue-app', 'window.sweetMapData=' . wp_json_encode($GLOBALS['mlm_map_data']) . ';', 'before');
 }
-add_action('wp_footer',    'mlm_output_map_data', 5);
-add_action('admin_footer', 'mlm_output_map_data', 5);
+add_action('wp_footer',    'mlm_output_map_data', 1);
+add_action('admin_footer', 'mlm_output_map_data', 1);
 
 /**
  * Загрузка только на нужной странице админки
  */
 add_action('admin_enqueue_scripts', function ($hook) {
   if ($hook === 'toplevel_page_mlm-settings-page') {
-    $map_id = sanitize_key($_GET['map_id'] ?? 'default');
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation param
+    $map_id = sanitize_key(wp_unslash($_GET['map_id'] ?? 'default'));
     mlm_enqueue_assets($map_id);
     wp_enqueue_style('mlm-admin', MLM_VUE_URL . 'assets/admin.css', [], MLM_VUE_VERSION);
+    $maps_label = esc_js(__('Maps', 'sweet-map'));
+    wp_add_inline_script('mlm-vue-app', "
+      document.addEventListener('DOMContentLoaded', function() {
+        var open = localStorage.getItem('mlm_toolbar_open') === '1';
+        var t = document.getElementById('mlm-toolbar');
+        var btn = document.getElementById('mlm-toggle-toolbar');
+        if (open && t && btn) {
+          t.style.display = 'flex';
+          btn.textContent = '\u2715 " . $maps_label . "';
+        }
+      });
+    ");
   }
 });
 
@@ -196,7 +205,7 @@ add_action('enqueue_block_editor_assets', function () {
  */
 add_filter('script_loader_tag', function ($tag, $handle, $src) {
   if ('mlm-vue-app' !== $handle) return $tag;
-  return '<script type="module" src="' . esc_url($src) . '"></script>';
+  return '<script type="module" src="' . esc_url($src) . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- script is already enqueued via wp_enqueue_script; filter only adds type="module"
 }, 10, 3);
 
 /**
@@ -275,80 +284,72 @@ require_once MLM_VUE_PATH . 'guide.php';
  * Рендер страницы админки
  */
 function mlm_render_page() {
-  $map_id  = sanitize_key($_GET['map_id'] ?? 'default');
+  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation param
+  $map_id  = sanitize_key(wp_unslash($_GET['map_id'] ?? 'default'));
   $map_ids = get_option('mlm_map_ids', ['default']);
-
   ?>
   <div class="wrap">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
-      <h1 style="margin:0;padding:0;line-height:1.3"><?= __('Sweet Map', 'sweet-map') ?></h1>
+      <h1 style="margin:0;padding:0;line-height:1.3"><?php esc_html_e('Sweet Map', 'sweet-map'); ?></h1>
       <button
         id="mlm-toggle-toolbar"
         onclick="
           var t = document.getElementById('mlm-toolbar');
           var open = t.style.display !== 'none';
           t.style.display = open ? 'none' : 'flex';
-          this.textContent = open ? '⚙️ <?= esc_js(__('Maps', 'sweet-map')) ?>' : '✕ <?= esc_js(__('Maps', 'sweet-map')) ?>';
+          this.textContent = open ? '&#x2699;&#xFE0F; <?php echo esc_js(__('Maps', 'sweet-map')); ?>' : '&#x2715; <?php echo esc_js(__('Maps', 'sweet-map')); ?>';
           localStorage.setItem('mlm_toolbar_open', open ? '0' : '1');
         "
         style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;transition:all .15s"
         onmouseover="this.style.background='#f1f5f9';this.style.borderColor='#94a3b8'"
         onmouseout="this.style.background='#f8fafc';this.style.borderColor='#e2e8f0'"
-      >⚙️ <?= __('Maps', 'sweet-map') ?></button>
-      <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          var open = localStorage.getItem('mlm_toolbar_open') === '1';
-          var t = document.getElementById('mlm-toolbar');
-          var btn = document.getElementById('mlm-toggle-toolbar');
-          if (open) {
-            t.style.display = 'flex';
-            btn.textContent = '✕ <?= esc_js(__('Maps', 'sweet-map')) ?>';
-          }
-        });
-      </script>
+      >&#x2699;&#xFE0F; <?php esc_html_e('Maps', 'sweet-map'); ?></button>
     </div>
 
     <div id="mlm-toolbar" class="mlm-toolbar" style="display:none">
-      <!-- Переключатель карт -->
+      <!-- Map switcher -->
       <form method="GET" class="mlm-toolbar__group">
         <input type="hidden" name="page" value="mlm-settings-page">
-        <span class="mlm-toolbar__label"><?= __('Map:', 'sweet-map') ?></span>
+        <span class="mlm-toolbar__label"><?php esc_html_e('Map:', 'sweet-map'); ?></span>
         <select name="map_id" class="mlm-toolbar__select" onchange="this.form.submit()">
-          <?php foreach ($map_ids as $id): ?>
-            <option value="<?= esc_attr($id) ?>" <?= $id === $map_id ? 'selected' : '' ?>>
-              <?= esc_html($id) ?>
+          <?php foreach ($map_ids as $id) : ?>
+            <option value="<?php echo esc_attr($id); ?>" <?php echo selected($id, $map_id, false); ?>>
+              <?php echo esc_html($id); ?>
             </option>
           <?php endforeach; ?>
         </select>
-        <span class="mlm-toolbar__shortcode">[sweet_map id="<?= esc_attr($map_id) ?>"]</span>
+        <span class="mlm-toolbar__shortcode">[sweet_map id="<?php echo esc_attr($map_id); ?>"]</span>
       </form>
 
       <div class="mlm-toolbar__divider"></div>
 
-      <!-- Создать новую карту -->
+      <!-- Create new map -->
       <form method="GET" class="mlm-toolbar__group">
         <input type="hidden" name="page" value="mlm-settings-page">
         <input type="hidden" name="create_map" value="1">
         <?php wp_nonce_field('mlm_create_map'); ?>
         <input type="text" name="new_map_id" placeholder="new-map-id"
           class="mlm-toolbar__input" pattern="[a-z0-9\-]+"
-          title="<?= esc_attr(__('Only a-z, 0-9, hyphen', 'sweet-map')) ?>">
-        <button type="submit" class="mlm-toolbar__btn-add">+ <?= __('New map', 'sweet-map') ?></button>
+          title="<?php echo esc_attr(__('Only a-z, 0-9, hyphen', 'sweet-map')); ?>">
+        <button type="submit" class="mlm-toolbar__btn-add">+ <?php esc_html_e('New map', 'sweet-map'); ?></button>
       </form>
 
-      <!-- Удалить карту (только не-default) -->
-      <?php if ($map_id !== 'default'): ?>
+      <!-- Delete map (non-default only) -->
+      <?php if ($map_id !== 'default') : ?>
         <div class="mlm-toolbar__divider"></div>
         <a
-          href="<?= esc_url(wp_nonce_url(admin_url('admin.php?page=mlm-settings-page&delete_map=1&del_map_id=' . urlencode($map_id)), 'mlm_delete_map_' . $map_id)) ?>"
+          href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=mlm-settings-page&delete_map=1&del_map_id=' . urlencode($map_id)), 'mlm_delete_map_' . $map_id)); ?>"
           class="mlm-toolbar__btn-delete"
-          onclick="return confirm('<?= esc_attr(sprintf(__('Delete map "%s" and all its markers? This cannot be undone.', 'sweet-map'), $map_id)) ?>')"
-        ><?= __('Delete map', 'sweet-map') ?></a>
+          onclick="return confirm('<?php
+            /* translators: %s: map ID */
+            echo esc_attr(sprintf(__('Delete map "%s" and all its markers? This cannot be undone.', 'sweet-map'), $map_id));
+          ?>')"
+        ><?php esc_html_e('Delete map', 'sweet-map'); ?></a>
       <?php endif; ?>
     </div>
 
-    <div class="mlm-map-root" data-map-id="<?= esc_attr($map_id) ?>">
-      <p><?= esc_html(__('Loading map…', 'sweet-map')) ?></p>
+    <div class="mlm-map-root" data-map-id="<?php echo esc_attr($map_id); ?>">
+      <p><?php esc_html_e('Loading map…', 'sweet-map'); ?></p>
     </div>
   </div>
   <?php
