@@ -1,0 +1,8 @@
+# Files excluded from git archive (plugin distribution zip)
+.gitattributes         export-ignore
+.gitignore             export-ignore
+README.md              export-ignore
+src-vue/.gitignore     export-ignore
+src-vue/.vscode        export-ignore
+src-vue/eslint.config.js export-ignore
+src-vue/README.md      export-ignore
