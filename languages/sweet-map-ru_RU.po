@@ -96,6 +96,15 @@ msgstr "Горячая клавиша"
 msgid "Press <kbd style=\"background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:2px 8px;font-size:13px\">Enter</kbd> while the marker editor is focused to save the current marker quickly."
 msgstr "Нажмите <kbd style=\"background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:2px 8px;font-size:13px\">Enter</kbd> пока редактор маркера активен — маркер сохранится мгновенно."
 
+msgid "Only a-z, 0-9, hyphen"
+msgstr "Только a-z, 0-9, дефис"
+
+msgid "Loading map…"
+msgstr "Загрузка карты…"
+
+msgid "Markers must be an array."
+msgstr "Данные должны быть массивом."
+
 msgid "Maps"
 msgstr "Карты"
 

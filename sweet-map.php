@@ -5,6 +5,9 @@
  * Author: Ivan Grishov
  * Plugin URI: https://wordpress.org/plugins/sweet-map/
  * Description: Interactive Leaflet map with a visual marker editor. Multiple maps, address search, popups with images and links. Shortcode [sweet_map].
+ * Requires at least: 5.8
+ * Requires PHP: 7.4
+ * Tested up to: 6.7
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: sweet-map
@@ -39,6 +42,7 @@ add_action('admin_init', function () {
 
   // Создание новой карты
   if (isset($_GET['create_map'], $_GET['new_map_id'])) {
+    check_admin_referer('mlm_create_map');
     $new_id = sanitize_key($_GET['new_map_id']);
     if (!$new_id) return;
     $map_ids = get_option('mlm_map_ids', ['default']);
@@ -54,6 +58,7 @@ add_action('admin_init', function () {
   if (isset($_GET['delete_map'], $_GET['del_map_id'])) {
     $del_id = sanitize_key($_GET['del_map_id']);
     if (!$del_id || $del_id === 'default') return;
+    check_admin_referer('mlm_delete_map_' . $del_id);
     $s = mlm_suffix($del_id);
     delete_option('mlm_coords'      . $s);
     delete_option('mlm_map_zoom'    . $s);
@@ -228,7 +233,7 @@ function mlm_handle_save_markers($request) {
   $zoom    = $params['zoom'] ?? 13;
 
   if (!is_array($markers)) {
-    return new WP_Error('invalid_data', 'Данные должны быть массивом', array('status' => 400));
+    return new WP_Error('invalid_data', __('Markers must be an array.', 'sweet-map'), array('status' => 400));
   }
 
   $sanitized = array();
@@ -247,12 +252,12 @@ function mlm_handle_save_markers($request) {
     );
   }
 
-  update_option('mlm_coords'     . $s, $sanitized);
-  update_option('mlm_map_zoom'   . $s, intval($zoom));
+  update_option('mlm_coords'     . $s, $sanitized,                                          false);
+  update_option('mlm_map_zoom'   . $s, intval($zoom),                                        false);
 
-  if (isset($params['map_style']))   update_option('mlm_map_style'   . $s, sanitize_text_field($params['map_style']));
-  if (isset($params['map_height']))  update_option('mlm_map_height'  . $s, intval($params['map_height']));
-  if (isset($params['show_search'])) update_option('mlm_show_search' . $s, (bool) $params['show_search']);
+  if (isset($params['map_style']))   update_option('mlm_map_style'   . $s, sanitize_text_field($params['map_style']), false);
+  if (isset($params['map_height']))  update_option('mlm_map_height'  . $s, intval($params['map_height']),             false);
+  if (isset($params['show_search'])) update_option('mlm_show_search' . $s, (bool) $params['show_search'],             false);
 
   // Регистрируем map_id в общем списке
   $map_ids = get_option('mlm_map_ids', ['default']);
@@ -324,8 +329,10 @@ function mlm_render_page() {
       <form method="GET" class="mlm-toolbar__group">
         <input type="hidden" name="page" value="mlm-settings-page">
         <input type="hidden" name="create_map" value="1">
+        <?php wp_nonce_field('mlm_create_map'); ?>
         <input type="text" name="new_map_id" placeholder="new-map-id"
-          class="mlm-toolbar__input" pattern="[a-z0-9\-]+" title="Только a-z, 0-9, дефис">
+          class="mlm-toolbar__input" pattern="[a-z0-9\-]+"
+          title="<?= esc_attr(__('Only a-z, 0-9, hyphen', 'sweet-map')) ?>">
         <button type="submit" class="mlm-toolbar__btn-add">+ <?= __('New map', 'sweet-map') ?></button>
       </form>
 
@@ -333,7 +340,7 @@ function mlm_render_page() {
       <?php if ($map_id !== 'default'): ?>
         <div class="mlm-toolbar__divider"></div>
         <a
-          href="<?= esc_url(admin_url('admin.php?page=mlm-settings-page&delete_map=1&del_map_id=' . urlencode($map_id))) ?>"
+          href="<?= esc_url(wp_nonce_url(admin_url('admin.php?page=mlm-settings-page&delete_map=1&del_map_id=' . urlencode($map_id)), 'mlm_delete_map_' . $map_id)) ?>"
           class="mlm-toolbar__btn-delete"
           onclick="return confirm('<?= esc_attr(sprintf(__('Delete map "%s" and all its markers? This cannot be undone.', 'sweet-map'), $map_id)) ?>')"
         ><?= __('Delete map', 'sweet-map') ?></a>
@@ -341,7 +348,7 @@ function mlm_render_page() {
     </div>
 
     <div class="mlm-map-root" data-map-id="<?= esc_attr($map_id) ?>">
-      <p>Загрузка карты...</p>
+      <p><?= esc_html(__('Loading map…', 'sweet-map')) ?></p>
     </div>
   </div>
   <?php

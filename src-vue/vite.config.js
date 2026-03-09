@@ -15,10 +15,11 @@ export default defineConfig({
     outDir: '../assets/dist',
     emptyOutDir: true,
     rollupOptions: {
+      input: './src/main.js',
       output: {
         // 2. Убираем хеши из названий, чтобы PHP их всегда "видел"
         entryFileNames: 'index.js',
-        assetFileNames: '[name].[ext]'
+        assetFileNames: (info) => info.name?.endsWith('.css') ? 'index.css' : '[name].[ext]'
       }
     }
   }

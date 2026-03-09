@@ -27,7 +27,7 @@ const { t } = useI18n();
         target="_blank"
         rel="noopener"
         class="text-indigo-400 hover:text-indigo-600 transition-colors shrink-0"
-        title="Открыть ссылку"
+        :title="t('admin.open_link')"
       >
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>

@@ -41,37 +41,40 @@ const leafletMarkers = new Map<string, L.Marker>();
 const markerCount = ref(0); // реактивный счётчик для v-if кнопки fit
 let draftLeafletMarker: L.Marker | null = null;
 
+const esc = (str: string) =>
+  str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
 const makePopupHtml = (data: MarkerData) => {
   const hasContent = data.title || data.description || data.link;
   let html = `<div style="width:220px;overflow:hidden;font-family:inherit">`;
 
   if (data.image) {
     const radius = hasContent ? '8px 8px 0 0' : '8px';
-    html += `<img src="${data.image}" style="width:100%;height:130px;object-fit:cover;display:block;border-radius:${radius}" />`;
+    html += `<img src="${esc(data.image)}" style="width:100%;height:130px;object-fit:cover;display:block;border-radius:${radius}" />`;
   }
 
   if (hasContent) {
     html += `<div style="padding:12px 14px ${data.link ? '0' : '14px'}">`;
 
     if (data.title) {
-      html += `<div style="font-size:14px;font-weight:700;color:#0f172a;line-height:1.3">${data.title}</div>`;
+      html += `<div style="font-size:14px;font-weight:700;color:#0f172a;line-height:1.3">${esc(data.title)}</div>`;
     }
 
     if (data.description) {
-      html += `<div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.5">${data.description}</div>`;
+      html += `<div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.5">${esc(data.description)}</div>`;
     }
 
     html += `</div>`;
 
     if (data.link) {
       html += `<div style="padding:10px 14px 12px;border-top:1px solid #f1f5f9">
-        <a href="${data.link}" target="_blank" rel="noopener"
+        <a href="${esc(data.link)}" target="_blank" rel="noopener"
           style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#4f46e5;text-decoration:none;font-weight:600">
           <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
             <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
           </svg>
-          ${t('admin.popup_more')}
+          ${esc(t('admin.popup_more'))}
         </a>
       </div>`;
     }
@@ -84,7 +87,7 @@ const makePopupHtml = (data: MarkerData) => {
 const createMarkerIcon = (data: MarkerData): L.DivIcon => {
   if (data.icon) {
     return L.divIcon({
-      html: `<img src="${data.icon}" style="width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))" />`,
+      html: `<img src="${esc(data.icon)}" style="width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))" />`,
       className: 'mlm-custom-marker',
       iconSize: [48, 48],
       iconAnchor: [24, 48],

@@ -86,7 +86,7 @@ const onEnter = (e: KeyboardEvent) => {
       </div>
       <div class="grid grid-cols-2 gap-2.5">
         <div class="flex items-center gap-2">
-          <span class="text-xs font-bold text-slate-600 w-7 uppercase tracking-wider shrink-0">Lat</span>
+          <span class="text-xs font-bold text-slate-600 w-7 uppercase tracking-wider shrink-0">{{ t('admin.lat') }}</span>
           <input
             v-model="draft.lat"
             type="text"
@@ -94,7 +94,7 @@ const onEnter = (e: KeyboardEvent) => {
           />
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-xs font-bold text-slate-600 w-7 uppercase tracking-wider shrink-0">Lng</span>
+          <span class="text-xs font-bold text-slate-600 w-7 uppercase tracking-wider shrink-0">{{ t('admin.lng') }}</span>
           <input
             v-model="draft.lng"
             type="text"
