@@ -154,10 +154,11 @@ function mlm_enqueue_assets($map_id = 'default') {
  */
 function mlm_output_map_data() {
   if (empty($GLOBALS['mlm_map_data'])) return;
-  wp_add_inline_script('mlm-vue-app', 'window.sweetMapData=' . wp_json_encode($GLOBALS['mlm_map_data']) . ';', 'before');
+  // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- inline data block for ES module; cannot use wp_add_inline_script with deferred type="module"
+  echo '<script>window.sweetMapData=' . wp_json_encode($GLOBALS['mlm_map_data']) . ";</script>\n";
 }
-add_action('wp_footer',    'mlm_output_map_data', 1);
-add_action('admin_footer', 'mlm_output_map_data', 1);
+add_action('wp_footer',    'mlm_output_map_data', 5);
+add_action('admin_footer', 'mlm_output_map_data', 5);
 
 /**
  * Загрузка только на нужной странице админки
