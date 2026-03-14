@@ -4,13 +4,3 @@
 README.md                    export-ignore
 CLAUDE.md                    export-ignore
 .claude/                     export-ignore
-
-# Vue source — only compiled dist is needed
-src-vue/                     export-ignore
-
-# WP.org assets — uploaded to SVN /assets/ separately
-assets/banner-772x250.png    export-ignore
-assets/icon-256x256.png      export-ignore
-assets/screenshot-1.png      export-ignore
-assets/screenshot-2.png      export-ignore
-assets/screenshot-3.png      export-ignore
