@@ -2,6 +2,8 @@
 .gitattributes               export-ignore
 .gitignore                   export-ignore
 README.md                    export-ignore
+CLAUDE.md                    export-ignore
+.claude/                     export-ignore
 
 # Vue source — only compiled dist is needed
 src-vue/                     export-ignore
