@@ -8,6 +8,7 @@ foreach ($map_ids as $map_id) {
   delete_option('swmap_coords'      . $s);
   delete_option('swmap_map_zoom'    . $s);
   delete_option('swmap_map_style'   . $s);
+  delete_option('swmap_map_title'   . $s);
   delete_option('swmap_map_height'  . $s);
   delete_option('swmap_show_search' . $s);
 }
