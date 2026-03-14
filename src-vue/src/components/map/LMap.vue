@@ -88,7 +88,7 @@ const createMarkerIcon = (data: MarkerData): L.DivIcon => {
   if (data.icon) {
     return L.divIcon({
       html: `<img src="${esc(data.icon)}" style="width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))" />`,
-      className: 'mlm-custom-marker',
+      className: 'swmap-custom-marker',
       iconSize: [48, 48],
       iconAnchor: [24, 48],
       popupAnchor: [0, -50]
@@ -99,7 +99,7 @@ const createMarkerIcon = (data: MarkerData): L.DivIcon => {
     html: `<svg width="38" height="53" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
             <path d="M12 21C16 17 20 13.4183 20 9C20 4.58172 16.4183 1 12 1C7.58172 1 4 4.58172 4 9C4 13.4183 8 17 12 21Z" fill="${color}" stroke="white" stroke-width="2"/>
             <circle cx="12" cy="9" r="3" fill="white"/></svg>`,
-    className: 'mlm-custom-marker',
+    className: 'swmap-custom-marker',
     iconSize: [38, 53],
     iconAnchor: [19, 53],
     popupAnchor: [0, -51]
@@ -342,8 +342,8 @@ watch(mapFlyTrigger, (coords) => {
 
 <template>
   <div
-    :style="{ height: `${props.mapHeight}px` }"
-    class="rounded-2xl overflow-hidden border border-slate-200 shadow-xl relative z-10 bg-slate-50"
+    :style="{ '--map-h': `${props.mapHeight}px` }"
+    class="swmap-map-container rounded-2xl overflow-hidden border border-slate-200 shadow-xl relative z-10 bg-slate-50"
   >
     <div ref="mapContainer" class="h-full w-full"></div>
 
@@ -359,7 +359,7 @@ watch(mapFlyTrigger, (coords) => {
       <!-- Fit all markers -->
       <button
         v-if="markerCount > 0"
-        class="mlm-map-btn"
+        class="swmap-map-btn"
         :title="$t('admin.fit_markers')"
         @click="fitAllMarkers"
       >
@@ -370,7 +370,7 @@ watch(mapFlyTrigger, (coords) => {
 
       <!-- My location -->
       <button
-        class="mlm-map-btn"
+        class="swmap-map-btn"
         :title="$t('admin.my_location')"
         @click="locateUser"
       >
@@ -385,7 +385,17 @@ watch(mapFlyTrigger, (coords) => {
 </template>
 
 <style scoped>
-.mlm-map-btn {
+.swmap-map-container {
+  height: var(--map-h);
+}
+
+@media (max-width: 767px) {
+  .swmap-map-container {
+    height: min(var(--map-h), 55vh);
+  }
+}
+
+.swmap-map-btn {
   width: 38px;
   height: 38px;
   background: #4f46e5;
@@ -399,13 +409,13 @@ watch(mapFlyTrigger, (coords) => {
   color: white;
   transition: all 0.15s;
 }
-.mlm-map-btn:hover {
+.swmap-map-btn:hover {
   background: #4338ca;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(79, 70, 229, 0.5);
 }
 
-:deep(.mlm-custom-marker) {
+:deep(.swmap-custom-marker) {
   background: transparent !important;
   border: none !important;
 }

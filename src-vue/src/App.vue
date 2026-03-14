@@ -35,11 +35,11 @@ const { mapStyle, mapHeight, showSearch } = store;
 
 <template>
   <div
-    class="mlm-plugin-root flex flex-col md:flex-row gap-5 relative items-start"
+    class="swmap-plugin-root flex flex-col md:flex-row gap-5 relative items-start"
   >
-    <AdminSettings v-if="canEdit" />
-    <div class="flex flex-col flex-1 gap-3 min-w-0 md:sticky md:top-16">
-      <div class="mlm-search-header flex flex-col gap-2">
+    <AdminSettings v-if="canEdit" class="order-2 md:order-first" />
+    <div class="flex flex-col flex-1 gap-3 min-w-0 w-full md:sticky md:top-16 order-1">
+      <div class="swmap-search-header flex flex-col gap-2">
         <MapSearch v-if="canEdit || showSearch" :can-edit="canEdit" />
       </div>
       <LMap :draggable="canEdit" :map-style="mapStyle" :map-height="mapHeight" />

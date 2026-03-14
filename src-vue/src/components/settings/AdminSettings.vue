@@ -7,7 +7,6 @@ import { useI18n } from 'vue-i18n';
 import MapZoomControl from '@/components/settings/MapZoomControl.vue';
 import MapStyleSelect from '@/components/settings/MapStyleSelect.vue';
 import MapHeightControl from '@/components/settings/MapHeightControl.vue';
-import ShowSearchToggle from '@/components/settings/ShowSearchToggle.vue';
 
 const { t } = useI18n();
 
@@ -24,7 +23,7 @@ watch(activeMarkerId, async (newId) => {
 </script>
 
 <template>
-  <div class="mlm-sidebar w-96 flex flex-col gap-0 relative font-sans">
+  <div class="swmap-sidebar w-full md:w-96 flex flex-col gap-0 relative font-sans">
     <!-- Editor -->
     <div>
       <MarkerEditor />
@@ -65,7 +64,6 @@ watch(activeMarkerId, async (newId) => {
       <MapZoomControl />
       <MapHeightControl />
       <MapStyleSelect v-model="mapStyle" />
-      <ShowSearchToggle />
 
     </div>
   </div>

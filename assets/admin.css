@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
 
-.mlm-toolbar {
+.swmap-toolbar {
   font-family: 'Nunito', sans-serif;
   display: flex;
   align-items: center;
@@ -14,20 +14,20 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
-.mlm-toolbar__group {
+.swmap-toolbar__group {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.mlm-toolbar__divider {
+.swmap-toolbar__divider {
   width: 1px;
   height: 24px;
   background: #e2e8f0;
   flex-shrink: 0;
 }
 
-.mlm-toolbar__label {
+.swmap-toolbar__label {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -36,7 +36,7 @@
   white-space: nowrap;
 }
 
-.mlm-toolbar__select {
+.swmap-toolbar__select {
   height: 34px !important;
   border: 1px solid #e2e8f0 !important;
   border-radius: 8px !important;
@@ -53,12 +53,12 @@
   transition: border-color 0.15s;
 }
 
-.mlm-toolbar__select:focus {
+.swmap-toolbar__select:focus {
   border-color: #818cf8 !important;
   background: #fff !important;
 }
 
-.mlm-toolbar__shortcode {
+.swmap-toolbar__shortcode {
   font-family: ui-monospace, monospace;
   font-size: 12px;
   color: #6366f1;
@@ -69,7 +69,7 @@
   white-space: nowrap;
 }
 
-.mlm-toolbar__input {
+.swmap-toolbar__input {
   height: 34px !important;
   border: 1px solid #e2e8f0 !important;
   border-radius: 8px !important;
@@ -83,16 +83,16 @@
   transition: border-color 0.15s;
 }
 
-.mlm-toolbar__input:focus {
+.swmap-toolbar__input:focus {
   border-color: #818cf8 !important;
   background: #fff !important;
 }
 
-.mlm-toolbar__input::placeholder {
+.swmap-toolbar__input::placeholder {
   color: #94a3b8 !important;
 }
 
-.mlm-toolbar__btn-add {
+.swmap-toolbar__btn-add {
   display: inline-flex !important;
   align-items: center !important;
   gap: 5px !important;
@@ -110,12 +110,12 @@
   text-decoration: none !important;
 }
 
-.mlm-toolbar__btn-add:hover {
+.swmap-toolbar__btn-add:hover {
   background: #4338ca !important;
   color: #fff !important;
 }
 
-.mlm-toolbar__btn-delete {
+.swmap-toolbar__btn-delete {
   display: inline-flex !important;
   align-items: center !important;
   height: 34px !important;
@@ -132,7 +132,7 @@
   text-decoration: none !important;
 }
 
-.mlm-toolbar__btn-delete:hover {
+.swmap-toolbar__btn-delete:hover {
   background: #fef2f2 !important;
   border-color: #ef4444 !important;
   color: #ef4444 !important;

@@ -1,15 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
 
-.mlm-guide {
+.swmap-guide {
   font-family: 'Nunito', sans-serif;
   max-width: 860px;
 }
 
-.mlm-guide__title {
+.swmap-guide__title {
   margin-bottom: 24px;
 }
 
-.mlm-guide__body {
+.swmap-guide__body {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -19,29 +19,29 @@
   color: #1e293b;
 }
 
-.mlm-guide__section-title {
+.swmap-guide__section-title {
   margin: 0 0 10px;
   font-size: 22px;
   font-weight: 700;
 }
 
-.mlm-guide__section-title--spaced {
+.swmap-guide__section-title--spaced {
   margin-bottom: 14px;
 }
 
-.mlm-guide__text {
+.swmap-guide__text {
   margin: 0 0 20px;
   color: #475569;
   font-size: 15px;
 }
 
-.mlm-guide__text--last {
+.swmap-guide__text--last {
   margin: 0;
   color: #475569;
   font-size: 15px;
 }
 
-.mlm-guide__pre {
+.swmap-guide__pre {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
@@ -50,18 +50,18 @@
   margin: 0 0 32px;
 }
 
-.mlm-guide__list {
+.swmap-guide__list {
   margin: 0 0 32px;
   padding-left: 22px;
   color: #475569;
   font-size: 15px;
 }
 
-.mlm-guide__list li {
+.swmap-guide__list li {
   margin-bottom: 8px;
 }
 
-.mlm-guide__kbd {
+.swmap-guide__kbd {
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
   border-radius: 4px;

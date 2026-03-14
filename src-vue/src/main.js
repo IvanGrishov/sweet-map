@@ -6,7 +6,7 @@ import App from './App.vue';
 import ru from './locales/ru.json';
 import en from './locales/en.json';
 
-document.querySelectorAll('.mlm-map-root').forEach((el) => {
+document.querySelectorAll('.swmap-map-root').forEach((el) => {
   const mapId = el.dataset.mapId;
   const wpData = window.sweetMapData?.[mapId]
     ?? (window.wpData?.map_id === mapId ? window.wpData : null);

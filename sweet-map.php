@@ -16,13 +16,13 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('MLM_VUE_VERSION', '1.0');
-define('MLM_VUE_URL', plugin_dir_url(__FILE__));
-define('MLM_VUE_PATH', plugin_dir_path(__FILE__));
+define('SWMAP_VUE_VERSION', '1.0');
+define('SWMAP_VUE_URL', plugin_dir_url(__FILE__));
+define('SWMAP_VUE_PATH', plugin_dir_path(__FILE__));
 
 add_action('init', function () {
   register_block_type('sweet-map/map', [
-    'render_callback' => 'mlm_render_block',
+    'render_callback' => 'swmap_render_block',
     'attributes' => [
       'mapId' => ['type' => 'string', 'default' => 'default'],
     ],
@@ -34,19 +34,19 @@ add_action('init', function () {
  * Обработка создания новой карты (до вывода HTML)
  */
 add_action('admin_init', function () {
-  if (sanitize_text_field(wp_unslash($_GET['page'] ?? '')) !== 'mlm-settings-page' || !current_user_can('manage_options')) return;
+  if (sanitize_text_field(wp_unslash($_GET['page'] ?? '')) !== 'swmap-settings-page' || !current_user_can('manage_options')) return;
 
   // Создание новой карты
   if (isset($_GET['create_map'], $_GET['new_map_id'])) {
-    check_admin_referer('mlm_create_map');
+    check_admin_referer('swmap_create_map');
     $new_id = sanitize_key($_GET['new_map_id']);
     if (!$new_id) return;
-    $map_ids = get_option('mlm_map_ids', ['default']);
+    $map_ids = get_option('swmap_map_ids', ['default']);
     if (!in_array($new_id, $map_ids)) {
       $map_ids[] = $new_id;
-      update_option('mlm_map_ids', $map_ids);
+      update_option('swmap_map_ids', $map_ids);
     }
-    wp_safe_redirect(admin_url('admin.php?page=mlm-settings-page&map_id=' . urlencode($new_id)));
+    wp_safe_redirect(admin_url('admin.php?page=swmap-settings-page&map_id=' . urlencode($new_id)));
     exit;
   }
 
@@ -54,18 +54,18 @@ add_action('admin_init', function () {
   if (isset($_GET['delete_map'], $_GET['del_map_id'])) {
     $del_id = sanitize_key($_GET['del_map_id']);
     if (!$del_id || $del_id === 'default') return;
-    check_admin_referer('mlm_delete_map_' . $del_id);
-    $s = mlm_suffix($del_id);
-    delete_option('mlm_coords'      . $s);
-    delete_option('mlm_map_zoom'    . $s);
-    delete_option('mlm_map_style'   . $s);
-    delete_option('mlm_map_title'   . $s);
-    delete_option('mlm_map_height'  . $s);
-    delete_option('mlm_show_search' . $s);
-    $map_ids = get_option('mlm_map_ids', ['default']);
+    check_admin_referer('swmap_delete_map_' . $del_id);
+    $s = swmap_suffix($del_id);
+    delete_option('swmap_coords'      . $s);
+    delete_option('swmap_map_zoom'    . $s);
+    delete_option('swmap_map_style'   . $s);
+    delete_option('swmap_map_title'   . $s);
+    delete_option('swmap_map_height'  . $s);
+    delete_option('swmap_show_search' . $s);
+    $map_ids = get_option('swmap_map_ids', ['default']);
     $map_ids = array_values(array_filter($map_ids, fn($id) => $id !== $del_id));
-    update_option('mlm_map_ids', $map_ids);
-    wp_safe_redirect(admin_url('admin.php?page=mlm-settings-page&map_id=default'));
+    update_option('swmap_map_ids', $map_ids);
+    wp_safe_redirect(admin_url('admin.php?page=swmap-settings-page&map_id=default'));
     exit;
   }
 });
@@ -75,106 +75,106 @@ add_action('admin_menu', function () {
     __('Sweet Map', 'sweet-map'),
     __('Sweet Map', 'sweet-map'),
     'manage_options',
-    'mlm-settings-page',
-    'mlm_render_page',
+    'swmap-settings-page',
+    'swmap_render_page',
     'dashicons-location',
     30
   );
 
   add_submenu_page(
-    'mlm-settings-page',
+    'swmap-settings-page',
     __('Maps', 'sweet-map'),
     __('Maps', 'sweet-map'),
     'manage_options',
-    'mlm-settings-page',
-    'mlm_render_page'
+    'swmap-settings-page',
+    'swmap_render_page'
   );
 
   add_submenu_page(
-    'mlm-settings-page',
+    'swmap-settings-page',
     __('Guide', 'sweet-map'),
     __('Guide', 'sweet-map'),
     'manage_options',
-    'mlm-docs-page',
-    'mlm_render_docs'
+    'swmap-docs-page',
+    'swmap_render_docs'
   );
 });
 
 /**
  * Хелпер: суффикс опции по map_id
  */
-function mlm_suffix($map_id) {
+function swmap_suffix($map_id) {
   return $map_id !== 'default' ? '_' . $map_id : '';
 }
 
 /**
  * Рендер Gutenberg-блока
  */
-function mlm_render_block($attrs) {
+function swmap_render_block($attrs) {
   $map_id = sanitize_key($attrs['mapId'] ?? 'default');
-  mlm_enqueue_assets($map_id);
-  return '<div class="mlm-map-root" data-map-id="' . esc_attr($map_id) . '"></div>';
+  swmap_enqueue_assets($map_id);
+  return '<div class="swmap-map-root" data-map-id="' . esc_attr($map_id) . '"></div>';
 }
 
 // Накопитель данных карт для вывода в футере
-$GLOBALS['mlm_map_data'] = [];
+$GLOBALS['swmap_map_data'] = [];
 
 /**
  * Подключение ассетов
  */
-function mlm_enqueue_assets($map_id = 'default') {
-  $dist_url  = MLM_VUE_URL . 'assets/dist/';
-  $dist_path = MLM_VUE_PATH . 'assets/dist/';
-  $s         = mlm_suffix($map_id);
+function swmap_enqueue_assets($map_id = 'default') {
+  $dist_url  = SWMAP_VUE_URL . 'assets/dist/';
+  $dist_path = SWMAP_VUE_PATH . 'assets/dist/';
+  $s         = swmap_suffix($map_id);
 
-  if (!wp_script_is('mlm-vue-app', 'enqueued')) {
+  if (!wp_script_is('swmap-vue-app', 'enqueued')) {
     $css_file = file_exists($dist_path . 'index.css') ? 'index.css' : 'style.css';
     if (file_exists($dist_path . $css_file)) {
-      wp_enqueue_style('mlm-vue-style', $dist_url . $css_file, array(), MLM_VUE_VERSION);
+      wp_enqueue_style('swmap-vue-style', $dist_url . $css_file, array(), SWMAP_VUE_VERSION);
     }
-    wp_enqueue_script('mlm-vue-app', $dist_url . 'index.js', array(), MLM_VUE_VERSION, true);
+    wp_enqueue_script('swmap-vue-app', $dist_url . 'index.js', array(), SWMAP_VUE_VERSION, true);
   }
 
-  $GLOBALS['mlm_map_data'][$map_id] = array(
-    'rest_url'   => esc_url_raw(rest_url('mlm/v1')),
+  $GLOBALS['swmap_map_data'][$map_id] = array(
+    'rest_url'   => esc_url_raw(rest_url('swmap/v1')),
     'nonce'      => wp_create_nonce('wp_rest'),
     'map_id'     => $map_id,
-    'coords'     => get_option('mlm_coords'      . $s, array()),
+    'coords'     => get_option('swmap_coords'      . $s, array()),
     'locale'     => get_locale(),
     'can_edit'   => is_admin() && current_user_can('manage_options'),
-    'zoom'       => (int) get_option('mlm_map_zoom'   . $s, 13),
-    'mapStyle'   => get_option('mlm_map_style'  . $s, 'osm'),
-    'mapHeight'  => (int) get_option('mlm_map_height'  . $s, 640),
-    'showSearch' => (bool) get_option('mlm_show_search' . $s, true),
+    'zoom'       => (int) get_option('swmap_map_zoom'   . $s, 13),
+    'mapStyle'   => get_option('swmap_map_style'  . $s, 'osm'),
+    'mapHeight'  => (int) get_option('swmap_map_height'  . $s, 640),
+    'showSearch' => (bool) get_option('swmap_show_search' . $s, true),
   );
 }
 
 /**
  * Вывод данных всех карт в футере одним тегом <script>
  */
-function mlm_output_map_data() {
-  if (empty($GLOBALS['mlm_map_data'])) return;
+function swmap_output_map_data() {
+  if (empty($GLOBALS['swmap_map_data'])) return;
   // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- inline data block for ES module; cannot use wp_add_inline_script with deferred type="module"
-  echo '<script>window.sweetMapData=' . wp_json_encode($GLOBALS['mlm_map_data']) . ";</script>\n";
+  echo '<script>window.sweetMapData=' . wp_json_encode($GLOBALS['swmap_map_data']) . ";</script>\n";
 }
-add_action('wp_footer',    'mlm_output_map_data', 5);
-add_action('admin_footer', 'mlm_output_map_data', 5);
+add_action('wp_footer',    'swmap_output_map_data', 5);
+add_action('admin_footer', 'swmap_output_map_data', 5);
 
 /**
  * Загрузка только на нужной странице админки
  */
 add_action('admin_enqueue_scripts', function ($hook) {
-  if ($hook === 'toplevel_page_mlm-settings-page') {
+  if ($hook === 'toplevel_page_swmap-settings-page') {
     // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation param
     $map_id = sanitize_key(wp_unslash($_GET['map_id'] ?? 'default'));
-    mlm_enqueue_assets($map_id);
-    wp_enqueue_style('mlm-admin', MLM_VUE_URL . 'assets/admin.css', [], MLM_VUE_VERSION);
+    swmap_enqueue_assets($map_id);
+    wp_enqueue_style('swmap-admin', SWMAP_VUE_URL . 'assets/admin.css', [], SWMAP_VUE_VERSION);
     $maps_label = esc_js(__('Maps', 'sweet-map'));
-    wp_add_inline_script('mlm-vue-app', "
+    wp_add_inline_script('swmap-vue-app', "
       document.addEventListener('DOMContentLoaded', function() {
-        var open = localStorage.getItem('mlm_toolbar_open') === '1';
-        var t = document.getElementById('mlm-toolbar');
-        var btn = document.getElementById('mlm-toggle-toolbar');
+        var open = localStorage.getItem('swmap_toolbar_open') === '1';
+        var t = document.getElementById('swmap-toolbar');
+        var btn = document.getElementById('swmap-toggle-toolbar');
         if (open && t && btn) {
           t.style.display = 'flex';
           btn.textContent = '\u2715 " . $maps_label . "';
@@ -188,12 +188,12 @@ add_action('admin_enqueue_scripts', function ($hook) {
  * Ассеты для блочного редактора (Gutenberg)
  */
 add_action('enqueue_block_editor_assets', function () {
-  $maps = get_option('mlm_map_ids', ['default']);
+  $maps = get_option('swmap_map_ids', ['default']);
   wp_enqueue_script(
     'sweet-map-block',
-    MLM_VUE_URL . 'blocks/index.js',
+    SWMAP_VUE_URL . 'blocks/index.js',
     ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n'],
-    MLM_VUE_VERSION,
+    SWMAP_VUE_VERSION,
     true
   );
   wp_localize_script('sweet-map-block', 'sweetMapBlockData', [
@@ -205,7 +205,7 @@ add_action('enqueue_block_editor_assets', function () {
  * Поддержка модулей для Vite JS
  */
 add_filter('script_loader_tag', function ($tag, $handle, $src) {
-  if ('mlm-vue-app' !== $handle) return $tag;
+  if ('swmap-vue-app' !== $handle) return $tag;
   return '<script type="module" src="' . esc_url($src) . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- script is already enqueued via wp_enqueue_script; filter only adds type="module"
 }, 10, 3);
 
@@ -215,17 +215,17 @@ add_filter('script_loader_tag', function ($tag, $handle, $src) {
 add_shortcode('sweet_map', function ($atts) {
   $atts   = shortcode_atts(['id' => 'default'], $atts, 'sweet_map');
   $map_id = sanitize_key($atts['id']);
-  mlm_enqueue_assets($map_id);
-  return '<div class="mlm-map-root" data-map-id="' . esc_attr($map_id) . '"></div>';
+  swmap_enqueue_assets($map_id);
+  return '<div class="swmap-map-root" data-map-id="' . esc_attr($map_id) . '"></div>';
 });
 
 /**
  * REST API
  */
 add_action('rest_api_init', function () {
-  register_rest_route('mlm/v1', '/save-markers', array(
+  register_rest_route('swmap/v1', '/save-markers', array(
     'methods'             => 'POST',
-    'callback'            => 'mlm_handle_save_markers',
+    'callback'            => 'swmap_handle_save_markers',
     'permission_callback' => function () {
       return current_user_can('manage_options');
     }
@@ -235,10 +235,10 @@ add_action('rest_api_init', function () {
 /**
  * Обработчик сохранения
  */
-function mlm_handle_save_markers($request) {
+function swmap_handle_save_markers($request) {
   $params  = $request->get_json_params();
   $map_id  = sanitize_key($params['map_id'] ?? 'default');
-  $s       = mlm_suffix($map_id);
+  $s       = swmap_suffix($map_id);
   $markers = $params['markers'] ?? array();
   $zoom    = $params['zoom'] ?? 13;
 
@@ -262,44 +262,44 @@ function mlm_handle_save_markers($request) {
     );
   }
 
-  update_option('mlm_coords'     . $s, $sanitized,                                          false);
-  update_option('mlm_map_zoom'   . $s, intval($zoom),                                        false);
+  update_option('swmap_coords'     . $s, $sanitized,                                          false);
+  update_option('swmap_map_zoom'   . $s, intval($zoom),                                        false);
 
-  if (isset($params['map_style']))   update_option('mlm_map_style'   . $s, sanitize_text_field($params['map_style']), false);
-  if (isset($params['map_height']))  update_option('mlm_map_height'  . $s, intval($params['map_height']),             false);
-  if (isset($params['show_search'])) update_option('mlm_show_search' . $s, (bool) $params['show_search'],             false);
+  if (isset($params['map_style']))   update_option('swmap_map_style'   . $s, sanitize_text_field($params['map_style']), false);
+  if (isset($params['map_height']))  update_option('swmap_map_height'  . $s, intval($params['map_height']),             false);
+  if (isset($params['show_search'])) update_option('swmap_show_search' . $s, (bool) $params['show_search'],             false);
 
   // Регистрируем map_id в общем списке
-  $map_ids = get_option('mlm_map_ids', ['default']);
+  $map_ids = get_option('swmap_map_ids', ['default']);
   if (!in_array($map_id, $map_ids)) {
     $map_ids[] = $map_id;
-    update_option('mlm_map_ids', $map_ids);
+    update_option('swmap_map_ids', $map_ids);
   }
 
   return new WP_REST_Response(array('success' => true), 200);
 }
 
-require_once MLM_VUE_PATH . 'guide.php';
+require_once SWMAP_VUE_PATH . 'guide.php';
 
 /**
  * Рендер страницы админки
  */
-function mlm_render_page() {
+function swmap_render_page() {
   // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation param
   $map_id  = sanitize_key(wp_unslash($_GET['map_id'] ?? 'default'));
-  $map_ids = get_option('mlm_map_ids', ['default']);
+  $map_ids = get_option('swmap_map_ids', ['default']);
   ?>
   <div class="wrap">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
       <h1 style="margin:0;padding:0;line-height:1.3"><?php esc_html_e('Sweet Map', 'sweet-map'); ?></h1>
       <button
-        id="mlm-toggle-toolbar"
+        id="swmap-toggle-toolbar"
         onclick="
-          var t = document.getElementById('mlm-toolbar');
+          var t = document.getElementById('swmap-toolbar');
           var open = t.style.display !== 'none';
           t.style.display = open ? 'none' : 'flex';
           this.textContent = open ? '&#x2699;&#xFE0F; <?php echo esc_js(__('Maps', 'sweet-map')); ?>' : '&#x2715; <?php echo esc_js(__('Maps', 'sweet-map')); ?>';
-          localStorage.setItem('mlm_toolbar_open', open ? '0' : '1');
+          localStorage.setItem('swmap_toolbar_open', open ? '0' : '1');
         "
         style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;transition:all .15s"
         onmouseover="this.style.background='#f1f5f9';this.style.borderColor='#94a3b8'"
@@ -307,40 +307,40 @@ function mlm_render_page() {
       >&#x2699;&#xFE0F; <?php esc_html_e('Maps', 'sweet-map'); ?></button>
     </div>
 
-    <div id="mlm-toolbar" class="mlm-toolbar" style="display:none">
+    <div id="swmap-toolbar" class="swmap-toolbar" style="display:none">
       <!-- Map switcher -->
-      <form method="GET" class="mlm-toolbar__group">
-        <input type="hidden" name="page" value="mlm-settings-page">
-        <span class="mlm-toolbar__label"><?php esc_html_e('Map:', 'sweet-map'); ?></span>
-        <select name="map_id" class="mlm-toolbar__select" onchange="this.form.submit()">
+      <form method="GET" class="swmap-toolbar__group">
+        <input type="hidden" name="page" value="swmap-settings-page">
+        <span class="swmap-toolbar__label"><?php esc_html_e('Map:', 'sweet-map'); ?></span>
+        <select name="map_id" class="swmap-toolbar__select" onchange="this.form.submit()">
           <?php foreach ($map_ids as $id) : ?>
             <option value="<?php echo esc_attr($id); ?>" <?php echo selected($id, $map_id, false); ?>>
               <?php echo esc_html($id); ?>
             </option>
           <?php endforeach; ?>
         </select>
-        <span class="mlm-toolbar__shortcode">[sweet_map id="<?php echo esc_attr($map_id); ?>"]</span>
+        <span class="swmap-toolbar__shortcode">[sweet_map id="<?php echo esc_attr($map_id); ?>"]</span>
       </form>
 
-      <div class="mlm-toolbar__divider"></div>
+      <div class="swmap-toolbar__divider"></div>
 
       <!-- Create new map -->
-      <form method="GET" class="mlm-toolbar__group">
-        <input type="hidden" name="page" value="mlm-settings-page">
+      <form method="GET" class="swmap-toolbar__group">
+        <input type="hidden" name="page" value="swmap-settings-page">
         <input type="hidden" name="create_map" value="1">
-        <?php wp_nonce_field('mlm_create_map'); ?>
+        <?php wp_nonce_field('swmap_create_map'); ?>
         <input type="text" name="new_map_id" placeholder="new-map-id"
-          class="mlm-toolbar__input" pattern="[a-z0-9\-]+"
+          class="swmap-toolbar__input" pattern="[a-z0-9\-]+"
           title="<?php echo esc_attr(__('Only a-z, 0-9, hyphen', 'sweet-map')); ?>">
-        <button type="submit" class="mlm-toolbar__btn-add">+ <?php esc_html_e('New map', 'sweet-map'); ?></button>
+        <button type="submit" class="swmap-toolbar__btn-add">+ <?php esc_html_e('New map', 'sweet-map'); ?></button>
       </form>
 
       <!-- Delete map (non-default only) -->
       <?php if ($map_id !== 'default') : ?>
-        <div class="mlm-toolbar__divider"></div>
+        <div class="swmap-toolbar__divider"></div>
         <a
-          href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=mlm-settings-page&delete_map=1&del_map_id=' . urlencode($map_id)), 'mlm_delete_map_' . $map_id)); ?>"
-          class="mlm-toolbar__btn-delete"
+          href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=swmap-settings-page&delete_map=1&del_map_id=' . urlencode($map_id)), 'swmap_delete_map_' . $map_id)); ?>"
+          class="swmap-toolbar__btn-delete"
           onclick="return confirm('<?php
             /* translators: %s: map ID */
             echo esc_attr(sprintf(__('Delete map "%s" and all its markers? This cannot be undone.', 'sweet-map'), $map_id));
@@ -349,7 +349,7 @@ function mlm_render_page() {
       <?php endif; ?>
     </div>
 
-    <div class="mlm-map-root" data-map-id="<?php echo esc_attr($map_id); ?>">
+    <div class="swmap-map-root" data-map-id="<?php echo esc_attr($map_id); ?>">
       <p><?php esc_html_e('Loading map…', 'sweet-map'); ?></p>
     </div>
   </div>

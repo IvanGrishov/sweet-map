@@ -2,11 +2,19 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMarkers } from '@/composables/useMarkers';
+import { useToast } from '@/composables/useToast';
 
 const props = defineProps<{ canEdit?: boolean }>();
 
 const { t } = useI18n();
-const { mapFlyTrigger, draftMarker, openNewMarker } = useMarkers();
+const { mapFlyTrigger, draftMarker, openNewMarker, showSearch, saveMarkers } = useMarkers();
+const toast = useToast();
+
+const toggleSearch = async () => {
+  showSearch.value = !showSearch.value;
+  await saveMarkers();
+  toast.show(t('admin.search_visibility_saved'));
+};
 
 interface NominatimResult {
   place_id: number;
@@ -82,7 +90,7 @@ const onBlur = () => {
 </script>
 
 <template>
-  <div class="mlm-search-wrap flex flex-col gap-1.5">
+  <div class="swmap-search-wrap flex flex-col gap-1.5">
     <!-- Search input -->
     <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-sm focus-within:border-indigo-400 focus-within:ring-1 focus-within:ring-indigo-100 transition-all relative">
       <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -93,7 +101,7 @@ const onBlur = () => {
         v-model="query"
         type="text"
         :placeholder="t('admin.search_placeholder')"
-        class="mlm-search-input flex-1 min-w-0"
+        class="swmap-search-input flex-1 min-w-0"
         @input="onInput"
         @keydown.enter.prevent="search"
         @keydown.escape="showDropdown = false"
@@ -114,11 +122,28 @@ const onBlur = () => {
         </svg>
       </button>
 
+      <template v-if="props.canEdit">
+        <span class="w-px h-4 bg-slate-200 mx-0.5 shrink-0" />
+        <button
+          :title="showSearch ? t('admin.show_search_on') : t('admin.show_search_off')"
+          class="shrink-0 transition-colors rounded p-0.5"
+          :class="showSearch ? 'text-indigo-400 hover:text-indigo-600' : 'text-slate-300 hover:text-slate-500'"
+          @mousedown.prevent="toggleSearch"
+        >
+          <svg v-if="showSearch" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+      </template>
+
       <!-- Dropdown -->
       <Transition name="dropdown">
         <ul
           v-if="showDropdown"
-          class="mlm-search-drop absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden"
+          class="swmap-search-drop absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden"
         >
           <li
             v-for="item in results"
@@ -133,6 +158,14 @@ const onBlur = () => {
           </li>
         </ul>
       </Transition>
+    </div>
+
+    <!-- Hint for admins when search is hidden from visitors -->
+    <div v-if="props.canEdit && !showSearch" class="flex items-center gap-1.5 px-1 text-xs text-slate-400">
+      <svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+      </svg>
+      {{ t('admin.show_search_off') }}
     </div>
 
     <!-- Action strip — shown after address selected (admin only) -->

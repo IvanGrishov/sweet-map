@@ -6,13 +6,13 @@
 }
 
 /* Сбрасываем max-width — WP навязывает его через .is-layout-constrained */
-.mlm-map-root,
-.mlm-map-root * {
+.swmap-map-root,
+.swmap-map-root * {
   max-width: none !important;
 }
 
 /* Точечный сброс auto-margin от WP layout system */
-.mlm-map-root :where(.is-layout-constrained) > * {
+.swmap-map-root :where(.is-layout-constrained) > * {
   margin-left: unset !important;
   margin-right: unset !important;
 }
@@ -24,17 +24,17 @@
    Specificity (class + tag) — бьёт любой
    незаслоенный тег-селектор (0,0,0,1) темы/WP.
    ------------------------------------------------------- */
-.mlm-map-root p,
-.mlm-map-root h1,
-.mlm-map-root h2,
-.mlm-map-root h3,
-.mlm-map-root h4,
-.mlm-map-root h5,
-.mlm-map-root h6,
-.mlm-map-root ul,
-.mlm-map-root ol,
-.mlm-map-root li,
-.mlm-map-root a {
+.swmap-map-root p,
+.swmap-map-root h1,
+.swmap-map-root h2,
+.swmap-map-root h3,
+.swmap-map-root h4,
+.swmap-map-root h5,
+.swmap-map-root h6,
+.swmap-map-root ul,
+.swmap-map-root ol,
+.swmap-map-root li,
+.swmap-map-root a {
   margin: 0;
   padding: 0;
   font-size: inherit;
@@ -52,20 +52,20 @@
    ------------------------------------------------------- */
 
 /* Search container — ограничиваем ширину */
-.mlm-map-root .mlm-search-wrap {
+.swmap-map-root .swmap-search-wrap {
   max-width: 36rem !important;
   width: 100% !important;
 }
 
 /* Dropdown items */
-.mlm-map-root .mlm-search-drop li {
+.swmap-map-root .swmap-search-drop li {
   font-size: 15px !important;
   padding: 12px 16px !important;
   line-height: 1.5 !important;
 }
 
 /* Search input — inside styled parent, needs no own border */
-.mlm-map-root .mlm-search-input {
+.swmap-map-root .swmap-search-input {
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -76,9 +76,9 @@
   color: #334155 !important;
   font-family: inherit !important;
 }
-.mlm-map-root .mlm-search-input::placeholder      { color: #94a3b8 !important; }
-.mlm-map-root .mlm-search-input:focus,
-.mlm-map-root .mlm-search-input:focus-visible     { outline: none !important; box-shadow: none !important; }
+.swmap-map-root .swmap-search-input::placeholder      { color: #94a3b8 !important; }
+.swmap-map-root .swmap-search-input:focus,
+.swmap-map-root .swmap-search-input:focus-visible     { outline: none !important; box-shadow: none !important; }
 
 @layer base {
   button,
