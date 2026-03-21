@@ -21,7 +21,7 @@
     },
 
     edit: function (props) {
-      var data = window.sweetMapBlockData || {};
+      var data = window.swmapBlockData || {};
       var maps = data.maps || ['default'];
       var mapId = props.attributes.mapId || 'default';
 

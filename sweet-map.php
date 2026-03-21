@@ -150,12 +150,11 @@ function swmap_enqueue_assets($map_id = 'default') {
 }
 
 /**
- * Вывод данных всех карт в футере одним тегом <script>
+ * Вывод данных всех карт через wp_add_inline_script (before)
  */
 function swmap_output_map_data() {
   if (empty($GLOBALS['swmap_map_data'])) return;
-  // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- inline data block for ES module; cannot use wp_add_inline_script with deferred type="module"
-  echo '<script>window.sweetMapData=' . wp_json_encode($GLOBALS['swmap_map_data']) . ";</script>\n";
+  wp_add_inline_script('swmap-vue-app', 'window.sweetMapData=' . wp_json_encode($GLOBALS['swmap_map_data']) . ';', 'before');
 }
 add_action('wp_footer',    'swmap_output_map_data', 5);
 add_action('admin_footer', 'swmap_output_map_data', 5);
@@ -165,8 +164,10 @@ add_action('admin_footer', 'swmap_output_map_data', 5);
  */
 add_action('admin_enqueue_scripts', function ($hook) {
   if ($hook === 'toplevel_page_swmap-settings-page') {
-    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation param
-    $map_id = sanitize_key(wp_unslash($_GET['map_id'] ?? 'default'));
+    $map_id = 'default';
+    if (isset($_GET['map_id'], $_GET['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'swmap_view')) {
+      $map_id = sanitize_key(wp_unslash($_GET['map_id']));
+    }
     swmap_enqueue_assets($map_id);
     wp_enqueue_style('swmap-admin', SWMAP_VUE_URL . 'assets/admin.css', [], SWMAP_VUE_VERSION);
     $maps_label = esc_js(__('Maps', 'sweet-map'));
@@ -196,7 +197,7 @@ add_action('enqueue_block_editor_assets', function () {
     SWMAP_VUE_VERSION,
     true
   );
-  wp_localize_script('sweet-map-block', 'sweetMapBlockData', [
+  wp_localize_script('sweet-map-block', 'swmapBlockData', [
     'maps' => $maps,
   ]);
 });
@@ -285,8 +286,10 @@ require_once SWMAP_VUE_PATH . 'guide.php';
  * Рендер страницы админки
  */
 function swmap_render_page() {
-  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation param
-  $map_id  = sanitize_key(wp_unslash($_GET['map_id'] ?? 'default'));
+  $map_id = 'default';
+  if (isset($_GET['map_id'], $_GET['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'swmap_view')) {
+    $map_id = sanitize_key(wp_unslash($_GET['map_id']));
+  }
   $map_ids = get_option('swmap_map_ids', ['default']);
   ?>
   <div class="wrap">
@@ -311,6 +314,7 @@ function swmap_render_page() {
       <!-- Map switcher -->
       <form method="GET" class="swmap-toolbar__group">
         <input type="hidden" name="page" value="swmap-settings-page">
+        <?php wp_nonce_field('swmap_view'); ?>
         <span class="swmap-toolbar__label"><?php esc_html_e('Map:', 'sweet-map'); ?></span>
         <select name="map_id" class="swmap-toolbar__select" onchange="this.form.submit()">
           <?php foreach ($map_ids as $id) : ?>

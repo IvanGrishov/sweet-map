@@ -61,6 +61,18 @@ This plugin uses open, free services to display maps and search addresses:
 
 Map tiles load when the map is displayed on the page. Address search sends a query only when the visitor types in the search box. The plugin does not store any personal data.
 
+== Source Code ==
+
+The compiled JavaScript (assets/dist/index.js) is built from the Vue 3 source code included in the src-vue/ directory of this plugin.
+
+To build from source:
+
+1. Navigate to the src-vue/ directory
+2. Run: yarn install
+3. Run: yarn build
+
+The entry point is src-vue/src/main.js. The build tool is Vite with Vue 3 and TypeScript.
+
 == Installation ==
 
 1. Upload the `sweet-map` folder to `/wp-content/plugins/`

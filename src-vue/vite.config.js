@@ -11,7 +11,6 @@ export default defineConfig({
     }
   },
   build: {
-    // 1. Выходим из src-vue и кладем билд в assets/dist
     outDir: '../assets/dist',
     emptyOutDir: true,
     rollupOptions: {
