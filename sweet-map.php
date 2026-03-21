@@ -116,11 +116,8 @@ function swmap_render_block($attrs) {
   return '<div class="swmap-map-root" data-map-id="' . esc_attr($map_id) . '"></div>';
 }
 
-// Accumulates map data; output to footer once per page
-$GLOBALS['swmap_map_data'] = [];
-
 /**
- * Enqueue plugin assets and collect map data
+ * Enqueue plugin assets and pass map data as inline script
  */
 function swmap_enqueue_assets($map_id = 'default') {
   $dist_url  = SWMAP_VUE_URL . 'assets/dist/';
@@ -135,7 +132,7 @@ function swmap_enqueue_assets($map_id = 'default') {
     wp_enqueue_script('swmap-vue-app', $dist_url . 'index.js', array(), SWMAP_VUE_VERSION, true);
   }
 
-  $GLOBALS['swmap_map_data'][$map_id] = array(
+  $map_data = array(
     'rest_url'   => esc_url_raw(rest_url('swmap/v1')),
     'nonce'      => wp_create_nonce('wp_rest'),
     'map_id'     => $map_id,
@@ -147,17 +144,13 @@ function swmap_enqueue_assets($map_id = 'default') {
     'mapHeight'  => (int) get_option('swmap_map_height'  . $s, 640),
     'showSearch' => (bool) get_option('swmap_show_search' . $s, true),
   );
-}
 
-/**
- * Output all map data as inline script before the Vue app
- */
-function swmap_output_map_data() {
-  if (empty($GLOBALS['swmap_map_data'])) return;
-  wp_add_inline_script('swmap-vue-app', 'window.sweetMapData=' . wp_json_encode($GLOBALS['swmap_map_data']) . ';', 'before');
+  wp_add_inline_script(
+    'swmap-vue-app',
+    'window.sweetMapData=Object.assign(window.sweetMapData||{},' . wp_json_encode(array($map_id => $map_data)) . ');',
+    'before'
+  );
 }
-add_action('wp_footer',    'swmap_output_map_data', 5);
-add_action('admin_footer', 'swmap_output_map_data', 5);
 
 /**
  * Enqueue assets only on the plugin admin page
@@ -207,7 +200,12 @@ add_action('enqueue_block_editor_assets', function () {
  */
 add_filter('script_loader_tag', function ($tag, $handle, $src) {
   if ('swmap-vue-app' !== $handle) return $tag;
-  return '<script type="module" src="' . esc_url($src) . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- script is already enqueued via wp_enqueue_script; filter only adds type="module"
+  // Add type="module" only to the src-based script tag, preserving inline before/after scripts
+  return str_replace(
+    "src='" . esc_url($src) . "'",
+    "type='module' src='" . esc_url($src) . "'",
+    $tag
+  );
 }, 10, 3);
 
 /**
