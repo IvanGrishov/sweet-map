@@ -38,7 +38,7 @@ const mapContainer = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;
 let clusterGroup: L.MarkerClusterGroup | null = null;
 const leafletMarkers = new Map<string, L.Marker>();
-const markerCount = ref(0); // реактивный счётчик для v-if кнопки fit
+const markerCount = ref(0); // reactive counter for the fit-bounds button v-if
 let draftLeafletMarker: L.Marker | null = null;
 
 const esc = (str: string) =>

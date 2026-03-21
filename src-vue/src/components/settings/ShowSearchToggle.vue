@@ -24,7 +24,7 @@ watch(showSearch, async () => {
         {{ t('admin.show_search') }}
       </span>
 
-      <!-- Toggle switch — без label/checkbox во избежание двойного триггера -->
+      <!-- Toggle switch — no label/checkbox to avoid double-trigger -->
       <div
         class="relative w-9 h-5 rounded-full transition-colors duration-200 shrink-0 cursor-pointer"
         :class="showSearch ? 'bg-indigo-500' : 'bg-slate-200'"

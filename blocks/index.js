@@ -12,7 +12,7 @@
     description: __('Add an interactive map to your page', 'sweet-map'),
     category: 'embed',
     icon: 'location',
-    keywords: ['map', 'sweet map', 'leaflet', 'карта'],
+    keywords: ['map', 'sweet map', 'leaflet'],
     attributes: {
       mapId: {
         type: 'string',

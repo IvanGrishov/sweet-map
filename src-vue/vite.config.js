@@ -16,7 +16,7 @@ export default defineConfig({
     rollupOptions: {
       input: './src/main.js',
       output: {
-        // 2. Убираем хеши из названий, чтобы PHP их всегда "видел"
+        // No hashes in filenames so PHP can always reference them by fixed path
         entryFileNames: 'index.js',
         assetFileNames: (info) => info.name?.endsWith('.css') ? 'index.css' : '[name].[ext]'
       }

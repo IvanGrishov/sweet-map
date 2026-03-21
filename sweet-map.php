@@ -31,12 +31,12 @@ add_action('init', function () {
 
 
 /**
- * Обработка создания новой карты (до вывода HTML)
+ * Handle new map creation and deletion (before HTML output)
  */
 add_action('admin_init', function () {
   if (sanitize_text_field(wp_unslash($_GET['page'] ?? '')) !== 'swmap-settings-page' || !current_user_can('manage_options')) return;
 
-  // Создание новой карты
+  // Create new map
   if (isset($_GET['create_map'], $_GET['new_map_id'])) {
     check_admin_referer('swmap_create_map');
     $new_id = sanitize_key($_GET['new_map_id']);
@@ -50,7 +50,7 @@ add_action('admin_init', function () {
     exit;
   }
 
-  // Удаление карты
+  // Delete map
   if (isset($_GET['delete_map'], $_GET['del_map_id'])) {
     $del_id = sanitize_key($_GET['del_map_id']);
     if (!$del_id || $del_id === 'default') return;
@@ -101,14 +101,14 @@ add_action('admin_menu', function () {
 });
 
 /**
- * Хелпер: суффикс опции по map_id
+ * Helper: returns option suffix for a given map_id
  */
 function swmap_suffix($map_id) {
   return $map_id !== 'default' ? '_' . $map_id : '';
 }
 
 /**
- * Рендер Gutenberg-блока
+ * Render Gutenberg block
  */
 function swmap_render_block($attrs) {
   $map_id = sanitize_key($attrs['mapId'] ?? 'default');
@@ -116,11 +116,11 @@ function swmap_render_block($attrs) {
   return '<div class="swmap-map-root" data-map-id="' . esc_attr($map_id) . '"></div>';
 }
 
-// Накопитель данных карт для вывода в футере
+// Accumulates map data; output to footer once per page
 $GLOBALS['swmap_map_data'] = [];
 
 /**
- * Подключение ассетов
+ * Enqueue plugin assets and collect map data
  */
 function swmap_enqueue_assets($map_id = 'default') {
   $dist_url  = SWMAP_VUE_URL . 'assets/dist/';
@@ -150,7 +150,7 @@ function swmap_enqueue_assets($map_id = 'default') {
 }
 
 /**
- * Вывод данных всех карт через wp_add_inline_script (before)
+ * Output all map data as inline script before the Vue app
  */
 function swmap_output_map_data() {
   if (empty($GLOBALS['swmap_map_data'])) return;
@@ -160,7 +160,7 @@ add_action('wp_footer',    'swmap_output_map_data', 5);
 add_action('admin_footer', 'swmap_output_map_data', 5);
 
 /**
- * Загрузка только на нужной странице админки
+ * Enqueue assets only on the plugin admin page
  */
 add_action('admin_enqueue_scripts', function ($hook) {
   if ($hook === 'toplevel_page_swmap-settings-page') {
@@ -186,7 +186,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
 });
 
 /**
- * Ассеты для блочного редактора (Gutenberg)
+ * Enqueue assets for the block editor (Gutenberg)
  */
 add_action('enqueue_block_editor_assets', function () {
   $maps = get_option('swmap_map_ids', ['default']);
@@ -203,7 +203,7 @@ add_action('enqueue_block_editor_assets', function () {
 });
 
 /**
- * Поддержка модулей для Vite JS
+ * Add type="module" to the Vue app script tag (required for Vite ESM output)
  */
 add_filter('script_loader_tag', function ($tag, $handle, $src) {
   if ('swmap-vue-app' !== $handle) return $tag;
@@ -211,7 +211,7 @@ add_filter('script_loader_tag', function ($tag, $handle, $src) {
 }, 10, 3);
 
 /**
- * Шорткод: [sweet_map id="default"]
+ * Shortcode: [sweet_map id="default"]
  */
 add_shortcode('sweet_map', function ($atts) {
   $atts   = shortcode_atts(['id' => 'default'], $atts, 'sweet_map');
@@ -234,7 +234,7 @@ add_action('rest_api_init', function () {
 });
 
 /**
- * Обработчик сохранения
+ * REST API callback: save markers and map settings
  */
 function swmap_handle_save_markers($request) {
   $params  = $request->get_json_params();
@@ -270,7 +270,7 @@ function swmap_handle_save_markers($request) {
   if (isset($params['map_height']))  update_option('swmap_map_height'  . $s, intval($params['map_height']),             false);
   if (isset($params['show_search'])) update_option('swmap_show_search' . $s, (bool) $params['show_search'],             false);
 
-  // Регистрируем map_id в общем списке
+  // Register map_id in the global list if not already there
   $map_ids = get_option('swmap_map_ids', ['default']);
   if (!in_array($map_id, $map_ids)) {
     $map_ids[] = $map_id;
@@ -283,7 +283,7 @@ function swmap_handle_save_markers($request) {
 require_once SWMAP_VUE_PATH . 'guide.php';
 
 /**
- * Рендер страницы админки
+ * Render admin settings page
  */
 function swmap_render_page() {
   $map_id = 'default';

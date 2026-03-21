@@ -1,5 +1,5 @@
 /**
- * Основной интерфейс маркера на карте
+ * Main marker data interface
  */
 export interface MarkerData {
   id: string;

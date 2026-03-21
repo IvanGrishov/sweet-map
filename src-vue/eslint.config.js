@@ -6,18 +6,18 @@ import globals from 'globals';
 import vueParser from 'vue-eslint-parser';
 
 export default tseslint.config(
-  // 1. Базовые конфиги
+  // 1. Base configs
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...pluginVue.configs['flat/recommended'],
   configPrettier,
-  // 2. Глобальные настройки
+  // 2. Global settings
   {
     languageOptions: {
       globals: {
         ...globals.browser,
         ...globals.node,
-        wpData: 'readonly' // Чтобы window.wpData не вызывал ошибок
+        wpData: 'readonly' // Prevent lint errors for window.wpData
       }
     }
   },
