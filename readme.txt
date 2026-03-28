@@ -63,15 +63,7 @@ Map tiles load when the map is displayed on the page. Address search sends a que
 
 == Source Code ==
 
-The compiled JavaScript (assets/dist/index.js) is built from the Vue 3 source code included in the src-vue/ directory of this plugin.
-
-To build from source:
-
-1. Navigate to the src-vue/ directory
-2. Run: yarn install
-3. Run: yarn build
-
-The entry point is src-vue/src/main.js. The build tool is Vite with Vue 3 and TypeScript.
+The compiled JavaScript (`assets/dist/index.js`) is built from Vue 3 source code available on [GitHub](https://github.com/IvanGrishov/sweet-map).
 
 == Installation ==
 
