@@ -2,3 +2,4 @@ CLAUDE.md
 src-vue/node_modules/
 src-vue/.vite/
 src-vue/.prettierrc
+.svn
